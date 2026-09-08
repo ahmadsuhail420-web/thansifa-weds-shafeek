@@ -270,6 +270,15 @@
     background:#ffffff url("image/1.webp") center top / cover no-repeat;
     padding:calc(var(--seal-overhang) - var(--seal-lift) + 5vh) 24px 8vh;
   }
+  /* the section's top padding already clears the flower band, so this
+     starts below mbl.webp */
+  .after-hero-art{
+    display:block;
+    width:100%;
+    height:auto;
+    max-width:none;
+    margin:0 auto;
+  }
 
   /* Scroll cue (functional cue only) */
   .scroll-cue{
@@ -385,7 +394,9 @@
     </picture>
   </div>
 
-  <section class="after-hero"></section>
+  <section class="after-hero">
+    <img class="after-hero-art" src="image/2.webp" alt="" />
+  </section>
 
   <!-- Fallback control if autoplay is blocked by the browser -->
   <button class="autoplay-fallback" id="autoplayFallback" type="button">
