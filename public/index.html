@@ -24,7 +24,8 @@
     --ease:cubic-bezier(.22,.61,.36,1);
     --hero-header-top:4.5vh;   /* masthead offset within the video's white space */
     --hero-media-h:92%;        /* hero video height, anchored to the bottom */
-    --seal-w:clamp(240px,72vw,480px);  /* mbl.webp width; straddles the hero seam */
+    /* seal spans the full width; 1230x792 art means height = 64.4vw, so half is: */
+    --seal-overhang:32.2vw;
   }
 
   *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
@@ -228,17 +229,21 @@
     background:linear-gradient(180deg, transparent 55%, rgba(10,7,4,.42) 100%);
   }
 
-  /* mbl.webp, centred on the seam between the hero and the section below */
+  /* full-width band centred on the seam between the hero and the section below */
   .hero-seal{
     position:absolute;
-    left:50%;
+    left:0;right:0;
     bottom:0;
-    transform:translate(-50%,50%);
     z-index:6;
-    width:var(--seal-w);
+    display:block;
+    transform:translateY(50%);
+    pointer-events:none;
+  }
+  .hero-seal img{
+    display:block;
+    width:100%;
     height:auto;
     max-width:none;
-    pointer-events:none;
   }
 
   /* section following the hero; top padding clears the seal's lower half */
@@ -247,14 +252,14 @@
     z-index:1;
     background:#ffffff;
     min-height:60svh;
-    padding:calc(var(--seal-w) * 0.34 + 5vh) 24px 8vh;
+    padding:calc(var(--seal-overhang) + 5vh) 24px 8vh;
   }
 
   /* Scroll cue (functional cue only) */
   .scroll-cue{
     position:absolute;
     left:50%;
-    bottom:calc(var(--seal-w) * 0.34 + 3vh + env(safe-area-inset-bottom));
+    bottom:calc(var(--seal-overhang) + 3vh + env(safe-area-inset-bottom));
     transform:translateX(-50%);
     z-index:4;
     display:flex;flex-direction:column;align-items:center;gap:.7rem;
@@ -357,7 +362,10 @@
       <span class="mouse"></span>
     </div>
 
-    <img class="hero-seal" src="image/mbl.webp" alt="" />
+    <picture class="hero-seal">
+      <source media="(min-width:768px)" srcset="image/lap.webp" />
+      <img src="image/mbl.webp" alt="" />
+    </picture>
   </div>
 
   <section class="after-hero"></section>
