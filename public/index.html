@@ -263,9 +263,11 @@
   .after-hero{
     position:relative;
     z-index:1;
+    /* the section is exactly as tall as 1.webp renders at full width:
+       the art is 1000x1777, so height = width * 1.777 */
+    aspect-ratio:1000 / 1777;
     /* white stays as the fallback colour under the artwork */
     background:#ffffff url("image/1.webp") center top / cover no-repeat;
-    min-height:60svh;
     padding:calc(var(--seal-overhang) - var(--seal-lift) + 5vh) 24px 8vh;
   }
 
