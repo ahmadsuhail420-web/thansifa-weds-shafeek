@@ -26,6 +26,7 @@
     --hero-media-h:92%;        /* hero video height, anchored to the bottom */
     /* seal spans the full width; 1230x792 art means height = 64.4vw, so half is: */
     --seal-overhang:32.2vw;
+    --seal-lift:6vh;           /* how far the flower band rides above the seam */
   }
 
   *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
@@ -227,17 +228,11 @@
     object-fit:cover;
     z-index:1;
   }
-  /* bottom-weighted only, so the video's white top stays clean for the masthead */
-  #hero .scrim{
-    z-index:2;
-    background:linear-gradient(180deg, transparent 55%, rgba(10,7,4,.42) 100%);
-  }
-
   /* full-width band centred on the seam between the hero and the section below */
   .hero-seal{
     position:absolute;
     left:0;right:0;
-    bottom:0;
+    bottom:var(--seal-lift);
     z-index:6;
     display:block;
     transform:translateY(50%);
@@ -256,16 +251,16 @@
     z-index:1;
     background:#ffffff;
     min-height:60svh;
-    padding:calc(var(--seal-overhang) + 5vh) 24px 8vh;
+    padding:calc(var(--seal-overhang) - var(--seal-lift) + 5vh) 24px 8vh;
   }
 
   /* Scroll cue (functional cue only) */
   .scroll-cue{
     position:absolute;
     left:50%;
-    bottom:calc(var(--seal-overhang) + 3vh + env(safe-area-inset-bottom));
+    bottom:calc(2.5vh + env(safe-area-inset-bottom));
     transform:translateX(-50%);
-    z-index:4;
+    z-index:7;                 /* above the flower band */
     display:flex;flex-direction:column;align-items:center;gap:.7rem;
     opacity:0;
     animation:rise 1.2s var(--ease) 1.4s forwards;
@@ -358,7 +353,6 @@
     <div class="hero-media">
       <video id="hero-video" playsinline muted loop preload="auto" webkit-playsinline
              src="video/h-bg.mp4"></video>
-      <div class="scrim"></div>
     </div>
 
     <div class="scroll-cue" aria-hidden="true">
