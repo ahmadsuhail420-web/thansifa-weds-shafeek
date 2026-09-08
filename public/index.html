@@ -225,8 +225,7 @@
     margin:0 .22em;
   }
 
-  /* --- video sits at the bottom; no stacking context here, so the video
-         below can blend against the backdrop behind it --- */
+  /* --- video sits at the bottom, slightly short of full height --- */
   .hero-media{
     position:absolute;
     left:0;right:0;
@@ -239,9 +238,6 @@
     inset:0;
     width:100%;height:100%;
     object-fit:cover;
-    /* multiply maps white to the backdrop beneath, so the video's white
-       ground drops out and h-bg.webp shows through it */
-    mix-blend-mode:multiply;
     z-index:1;
   }
   /* full-width band centred on the seam between the hero and the section below */
