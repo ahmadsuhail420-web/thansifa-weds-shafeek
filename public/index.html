@@ -4,12 +4,12 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <meta name="theme-color" content="#1a1410" />
-<title>Thansifa &amp; Shafeek</title>
+<title>Thanseefa &amp; Shakeer</title>
 
 <link rel="preload" as="image" href="image/w-poster.webp" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500&family=Josefin+Sans:wght@300;400&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cormorant+Garamond:wght@300;400;500;600&family=Josefin+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
 
 <style>
   :root{
@@ -21,6 +21,7 @@
     --burgundy:#7b2233;
     --sans:'Josefin Sans', -apple-system, BlinkMacSystemFont, sans-serif;
     --serif:'Cormorant Garamond', 'Times New Roman', serif;
+    --arabic:'Amiri', 'Traditional Arabic', serif;
     --ease:cubic-bezier(.22,.61,.36,1);
     --hero-header-top:4.5vh;   /* masthead offset from the top of the hero */
     --hero-media-h:84%;        /* hero video height, anchored to the bottom */
@@ -270,14 +271,72 @@
     background:#ffffff url("image/1.webp") center top / cover no-repeat;
     padding:calc(var(--seal-overhang) - var(--seal-lift) + 5vh) 24px 4vh;
   }
-  /* the negative top margin cancels the section's 5vh gap and pulls the art
+  /* the negative top margin cancels the section's 5vh gap and pulls the card
      up under the flower band, so its top edge is covered by mbl.webp */
+  .invite{
+    position:relative;
+    width:calc(100% + 48px);   /* breaks out of the section's 24px side padding */
+    margin:calc(-5vh - (var(--seal-overhang) - var(--seal-lift)) * var(--art-tuck)) -24px 0;
+  }
   .after-hero-art{
     display:block;
-    width:calc(100% + 48px);   /* breaks out of the section's 24px side padding */
+    width:100%;
     height:auto;
     max-width:none;
-    margin:calc(-5vh - (var(--seal-overhang) - var(--seal-lift)) * var(--art-tuck)) -24px 0;
+  }
+  /* the wording sits inside the lace panel; the top padding matches exactly the
+     slice of the card that the flower band covers, so nothing hides behind it */
+  .invite-text{
+    position:absolute;
+    inset:0;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    color:var(--burgundy);
+    padding:calc((var(--seal-overhang) - var(--seal-lift)) * var(--art-tuck) + 2vh) 11% 5%;
+    gap:clamp(3px,1.1vw,9px);
+  }
+  .invite-bismillah{
+    font-family:var(--arabic);
+    font-weight:400;
+    font-size:clamp(18px,6vw,34px);
+    line-height:1.9;
+    direction:rtl;
+  }
+  .invite-sub{
+    font-family:var(--sans);
+    font-weight:400;
+    text-transform:uppercase;
+    letter-spacing:.05em;
+    font-size:clamp(6.8px,1.92vw,12.5px);
+    line-height:1.7;
+  }
+  .invite-hosts{
+    font-family:var(--serif);
+    font-weight:500;
+    font-size:clamp(15px,4.4vw,26px);
+    line-height:1.25;
+  }
+  .invite-note{
+    font-family:var(--serif);
+    font-weight:400;
+    font-size:clamp(10px,3vw,16px);
+    line-height:1.4;
+  }
+  .invite-name{
+    font-family:var(--serif);
+    font-weight:500;
+    font-size:clamp(20px,6.6vw,38px);
+    line-height:1.15;
+    margin-top:clamp(2px,.8vw,7px);
+  }
+  .invite-amp{
+    font-family:var(--serif);
+    font-style:italic;
+    font-size:clamp(16px,5vw,30px);
+    line-height:1.2;
   }
 
   /* Scroll cue (functional cue only) */
@@ -375,7 +434,7 @@
       <div class="hero-mono-slot">
         <img class="hero-mono" src="image/mono.webp" alt="" />
       </div>
-      <h1 class="hero-names">Thanseefa<span class="amp">&amp;</span>Shafeek</h1>
+      <h1 class="hero-names">Thanseefa<span class="amp">&amp;</span>Shakeer</h1>
     </header>
 
     <div class="hero-media">
@@ -395,7 +454,27 @@
   </div>
 
   <section class="after-hero">
-    <img class="after-hero-art" src="image/2.webp" alt="" />
+    <div class="invite">
+      <img class="after-hero-art" src="image/2.webp" alt="" />
+
+      <div class="invite-text">
+        <p class="invite-bismillah" lang="ar">&#1576;&#1587;&#1605; &#1575;&#1604;&#1604;&#1607; &#1575;&#1604;&#1585;&#1581;&#1605;&#1606; &#1575;&#1604;&#1585;&#1581;&#1610;&#1605;</p>
+        <p class="invite-sub">In the name of Allah<br />the most beneficient the most merciful</p>
+
+        <p class="invite-hosts">Mr.Isubu &amp; Mrs.Jameela</p>
+        <p class="invite-note">(Pattur House, Kokkada)</p>
+
+        <p class="invite-sub">We cordially invite your esteemed presence with family<br />for the wedding of our daughter</p>
+
+        <h2 class="invite-name">Fathimath Thanseefa</h2>
+        <p class="invite-note">(Grand D/O Abdullah &amp; Late Aboobakkar)</p>
+
+        <p class="invite-amp">&amp;</p>
+
+        <h2 class="invite-name">Ahammad Shakeer M</h2>
+        <p class="invite-note">(S/O Mr.Hassainar &amp; Mrs.Ayisha<br />Ummikala house Bellare)</p>
+      </div>
+    </div>
   </section>
 
   <!-- Fallback control if autoplay is blocked by the browser -->
