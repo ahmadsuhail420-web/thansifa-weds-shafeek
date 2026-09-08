@@ -263,7 +263,8 @@
   .after-hero{
     position:relative;
     z-index:1;
-    background:#ffffff;
+    /* white stays as the fallback colour under the artwork */
+    background:#ffffff url("image/1.webp") center top / cover no-repeat;
     min-height:60svh;
     padding:calc(var(--seal-overhang) - var(--seal-lift) + 5vh) 24px 8vh;
   }
