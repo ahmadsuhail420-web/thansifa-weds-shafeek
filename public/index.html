@@ -88,8 +88,10 @@
     justify-content:flex-end;
     padding:0 24px calc(12vh + env(safe-area-inset-bottom));
     text-align:center;
-    transition:opacity .9s var(--ease);
+    opacity:0;
+    transition:opacity 1.1s var(--ease);
   }
+  .tap-prompt.show{opacity:1;}
   .tap-prompt.hide{opacity:0;pointer-events:none;}
 
   .tap-cta{
@@ -278,6 +280,7 @@
 
   var started   = false;   // welcome interaction consumed
   var revealed  = false;   // hero already revealed
+  var promptTimer = null;  // delayed reveal of the tap cue
 
   // Belt-and-braces for reliable mobile inline playback
   [welcomeVideo, heroVideo].forEach(function(v){
@@ -317,6 +320,8 @@
     if (started) return;            // prevent replay of the intro interaction
     started = true;
 
+    clearTimeout(promptTimer);
+    tapPrompt.classList.remove('show');
     tapPrompt.classList.add('hide');
     poster.classList.add('fade-out');
     welcomeVideo.classList.add('playing');
@@ -350,6 +355,11 @@
     welcome.removeEventListener('click', beginStory);
     welcome.removeEventListener('keydown', onKey);
   }
+
+  // Surface the cue after 2s, only if the guest hasn't already interacted.
+  promptTimer = setTimeout(function(){
+    if (!started) tapPrompt.classList.add('show');
+  }, 2000);
 
   welcome.addEventListener('touchstart', beginStory, {passive:true});
   welcome.addEventListener('click', beginStory);
