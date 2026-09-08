@@ -22,8 +22,8 @@
     --sans:'Josefin Sans', -apple-system, BlinkMacSystemFont, sans-serif;
     --serif:'Cormorant Garamond', 'Times New Roman', serif;
     --ease:cubic-bezier(.22,.61,.36,1);
-    --hero-header-top:4.5vh;   /* masthead offset within the video's white space */
-    --hero-media-h:92%;        /* hero video height, anchored to the bottom */
+    --hero-header-top:4.5vh;   /* masthead offset from the top of the hero */
+    --hero-media-h:84%;        /* hero video height, anchored to the bottom */
     /* seal spans the full width; 1230x792 art means height = 64.4vw, so half is: */
     --seal-overhang:32.2vw;
     --seal-lift:6vh;           /* how far the flower band rides above the seam */
@@ -225,7 +225,8 @@
     margin:0 .22em;
   }
 
-  /* --- video sits at the bottom, slightly short of full height --- */
+  /* --- video sits at the bottom; no stacking context here, so the video
+         below can blend against the backdrop behind it --- */
   .hero-media{
     position:absolute;
     left:0;right:0;
@@ -237,7 +238,12 @@
     position:absolute;
     inset:0;
     width:100%;height:100%;
-    object-fit:cover;
+    /* contain, not cover: with the white keyed out we want the whole framed
+       composition, not a crop that would clip its border unevenly */
+    object-fit:contain;
+    /* multiply maps white to the backdrop beneath, so the video's white
+       ground drops out and h-bg.webp shows through it */
+    mix-blend-mode:multiply;
     z-index:1;
   }
   /* full-width band centred on the seam between the hero and the section below */
