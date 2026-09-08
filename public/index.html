@@ -20,6 +20,7 @@
     --ink:#1a1410;
     --sans:'Josefin Sans', -apple-system, BlinkMacSystemFont, sans-serif;
     --ease:cubic-bezier(.22,.61,.36,1);
+    --hero-media-h:86%;   /* hero video height, bottom-anchored */
   }
 
   *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
@@ -146,7 +147,7 @@
     width:100%;
     height:100vh;height:100svh;min-height:100dvh;
     overflow:hidden;
-    background:var(--ink);
+    background:var(--ivory);
     opacity:0;
     visibility:hidden;
     z-index:10;
@@ -156,12 +157,20 @@
 
   #hero video{
     position:absolute;
-    inset:0;
-    width:100%;height:100%;
+    left:0;right:0;
+    top:auto;bottom:0;
+    width:100%;
+    height:var(--hero-media-h);
     object-fit:cover;
     z-index:1;
   }
-  #hero .scrim{z-index:2;}
+  /* scrim tracks the video box so the ivory band stays clean */
+  #hero .scrim{
+    z-index:2;
+    top:auto;bottom:0;
+    height:var(--hero-media-h);
+    background:linear-gradient(180deg, transparent 55%, rgba(10,7,4,.42) 100%);
+  }
 
   /* Scroll cue (functional cue only) */
   .scroll-cue{
