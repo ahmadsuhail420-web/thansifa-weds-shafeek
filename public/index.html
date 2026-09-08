@@ -9,7 +9,7 @@
 <link rel="preload" as="image" href="image/w-poster.webp" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500&family=Josefin+Sans:wght@300;400&display=swap" rel="stylesheet" />
 
 <style>
   :root{
@@ -19,8 +19,8 @@
     --gold-soft:#d8bd82;
     --ink:#1a1410;
     --sans:'Josefin Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    --serif:'Cormorant Garamond', 'Times New Roman', serif;
     --ease:cubic-bezier(.22,.61,.36,1);
-    --hero-media-h:86%;   /* hero video height, bottom-anchored */
   }
 
   *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
@@ -147,7 +147,9 @@
     width:100%;
     height:100vh;height:100svh;min-height:100dvh;
     overflow:hidden;
-    background:var(--ivory);
+    background:#ffffff;
+    display:flex;
+    flex-direction:column;
     opacity:0;
     visibility:hidden;
     z-index:10;
@@ -155,20 +157,59 @@
   }
   #hero.reveal{opacity:1;visibility:visible;}
 
-  #hero video{
+  /* --- masthead on the white band --- */
+  .hero-header{
+    flex:0 0 auto;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    text-align:center;
+    padding:calc(4.5vh + env(safe-area-inset-top)) 24px 2.2vh;
+  }
+  .hero-eyebrow{
+    font-family:var(--sans);
+    font-weight:300;
+    letter-spacing:.42em;
+    text-transform:uppercase;
+    font-size:.62rem;
+    color:var(--gold);
+    padding-left:.42em;
+  }
+  .hero-mono{
+    width:clamp(58px,19vw,92px);
+    height:auto;
+    margin:1rem 0 .85rem;
+  }
+  .hero-names{
+    font-family:var(--serif);
+    font-weight:400;
+    font-size:clamp(1.7rem,8.2vw,2.7rem);
+    line-height:1.1;
+    color:var(--ink);
+  }
+  .hero-names .amp{
+    font-style:italic;
+    color:var(--gold);
+    margin:0 .22em;
+  }
+
+  /* --- video fills whatever the masthead leaves, sitting at the bottom --- */
+  .hero-media{
+    position:relative;
+    flex:1 1 auto;
+    min-height:0;
+    overflow:hidden;
+  }
+  .hero-media video{
     position:absolute;
-    left:0;right:0;
-    top:auto;bottom:0;
-    width:100%;
-    height:var(--hero-media-h);
+    inset:0;
+    width:100%;height:100%;
     object-fit:cover;
     z-index:1;
   }
-  /* scrim tracks the video box so the ivory band stays clean */
+  /* scrim is scoped to the media box so the white band stays clean */
   #hero .scrim{
     z-index:2;
-    top:auto;bottom:0;
-    height:var(--hero-media-h);
     background:linear-gradient(180deg, transparent 55%, rgba(10,7,4,.42) 100%);
   }
 
@@ -259,9 +300,17 @@
 
   <!-- ===================== HERO SCENE ===================== -->
   <div id="hero">
-    <video id="hero-video" playsinline muted loop preload="auto" webkit-playsinline
-           src="video/h-bg.mp4"></video>
-    <div class="scrim"></div>
+    <header class="hero-header">
+      <p class="hero-eyebrow">The Wedding Of</p>
+      <img class="hero-mono" src="image/mono.webp" alt="" />
+      <h1 class="hero-names">Thanseefa<span class="amp">&amp;</span>Shafeek</h1>
+    </header>
+
+    <div class="hero-media">
+      <video id="hero-video" playsinline muted loop preload="auto" webkit-playsinline
+             src="video/h-bg.mp4"></video>
+      <div class="scrim"></div>
+    </div>
 
     <div class="scroll-cue" aria-hidden="true">
       <span class="label">Scroll to explore</span>
