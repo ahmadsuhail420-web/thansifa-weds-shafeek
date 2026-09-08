@@ -150,7 +150,11 @@
   #hero{
     position:relative;
     width:100%;
-    height:100vh;height:100svh;min-height:100dvh;
+    /* svh is the *small* viewport (URL bar showing) and is a static value, so
+       the hero keeps one height while Chrome's bar hides on scroll. Never dvh
+       here: it re-resolves as the bar retracts and the section would resize. */
+    height:100vh;          /* fallback for browsers without svh */
+    height:100svh;
     background:#ffffff;
     opacity:0;
     visibility:hidden;
