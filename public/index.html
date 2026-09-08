@@ -164,7 +164,19 @@
   }
   #hero.reveal{opacity:1;visibility:visible;}
 
-  /* --- masthead, overlaid on the white space the video already has --- */
+  /* --- backdrop: fills the hero, sits beneath the video --- */
+  .hero-bg{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    object-position:center top;
+    max-width:none;
+    z-index:0;
+  }
+
+  /* --- masthead, overlaid on the backdrop above the video --- */
   .hero-header{
     position:absolute;
     left:0;right:0;top:0;
@@ -342,6 +354,8 @@
 
   <!-- ===================== HERO SCENE ===================== -->
   <div id="hero">
+    <img class="hero-bg" src="image/h-bg.webp" alt="" />
+
     <header class="hero-header">
       <p class="hero-eyebrow">The Wedding Of</p>
       <div class="hero-mono-slot">
