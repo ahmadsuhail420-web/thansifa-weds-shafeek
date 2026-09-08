@@ -18,9 +18,11 @@
     --gold:#c9a35b;
     --gold-soft:#d8bd82;
     --ink:#1a1410;
+    --burgundy:#7b2233;
     --sans:'Josefin Sans', -apple-system, BlinkMacSystemFont, sans-serif;
     --serif:'Cormorant Garamond', 'Times New Roman', serif;
     --ease:cubic-bezier(.22,.61,.36,1);
+    --hero-header-top:4.5vh;   /* masthead offset within the video's white space */
   }
 
   *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
@@ -148,8 +150,6 @@
     height:100vh;height:100svh;min-height:100dvh;
     overflow:hidden;
     background:#ffffff;
-    display:flex;
-    flex-direction:column;
     opacity:0;
     visibility:hidden;
     z-index:10;
@@ -157,14 +157,16 @@
   }
   #hero.reveal{opacity:1;visibility:visible;}
 
-  /* --- masthead on the white band --- */
+  /* --- masthead, overlaid on the white space the video already has --- */
   .hero-header{
-    flex:0 0 auto;
+    position:absolute;
+    left:0;right:0;top:0;
+    z-index:3;
     display:flex;
     flex-direction:column;
     align-items:center;
     text-align:center;
-    padding:calc(4.5vh + env(safe-area-inset-top)) 24px 2.2vh;
+    padding:calc(var(--hero-header-top) + env(safe-area-inset-top)) 24px 0;
   }
   .hero-eyebrow{
     font-family:var(--sans);
@@ -172,18 +174,18 @@
     letter-spacing:.42em;
     text-transform:uppercase;
     font-size:.62rem;
-    color:var(--gold);
+    color:var(--burgundy);
     padding-left:.42em;
   }
   .hero-mono{
-    width:clamp(58px,19vw,92px);
+    width:clamp(88px,29vw,140px);
     height:auto;
-    margin:1rem 0 .85rem;
+    margin:.9rem 0 .7rem;
   }
   .hero-names{
     font-family:var(--serif);
     font-weight:400;
-    font-size:clamp(1.7rem,8.2vw,2.7rem);
+    font-size:clamp(1.3rem,6vw,1.95rem);
     line-height:1.1;
     color:var(--ink);
   }
@@ -193,11 +195,10 @@
     margin:0 .22em;
   }
 
-  /* --- video fills whatever the masthead leaves, sitting at the bottom --- */
+  /* --- video is full-bleed; its own white space carries the masthead --- */
   .hero-media{
-    position:relative;
-    flex:1 1 auto;
-    min-height:0;
+    position:absolute;
+    inset:0;
     overflow:hidden;
   }
   .hero-media video{
@@ -207,7 +208,7 @@
     object-fit:cover;
     z-index:1;
   }
-  /* scrim is scoped to the media box so the white band stays clean */
+  /* bottom-weighted only, so the video's white top stays clean for the masthead */
   #hero .scrim{
     z-index:2;
     background:linear-gradient(180deg, transparent 55%, rgba(10,7,4,.42) 100%);
