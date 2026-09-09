@@ -375,7 +375,7 @@
     align-items:center;
     text-align:center;
   }
-  .reveal-heading{
+  .sec-heading{
     font-family:var(--serif);
     font-weight:400;
     font-size:clamp(25px,7.4vw,42px);
@@ -383,13 +383,14 @@
     letter-spacing:.01em;
     color:var(--burgundy);
   }
-  .reveal-rule{
+  .sec-rule{
     display:block;
     width:clamp(44px,13vw,72px);
     height:1px;
     background:var(--gold);
     opacity:.55;
-    margin:clamp(18px,4.6vw,30px) 0 clamp(26px,7vw,46px);
+    /* auto side margins: .sec-inner is a block, so the rule must centre itself */
+    margin:clamp(18px,4.6vw,30px) auto clamp(26px,7vw,46px);
   }
 
   .scratch{
@@ -442,6 +443,216 @@
 
   @media (prefers-reduced-motion:reduce){
     .scratch-foil{ transition-duration:.2s !important; }
+  }
+
+  /* ===== SHARED SECTION SHELL ===== */
+  .sec{
+    position:relative;
+    z-index:1;
+    padding:clamp(56px,14vw,112px) 24px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    text-align:center;
+  }
+  .sec--ivory{ background:#fbf7f0; }
+  .sec--white{ background:#ffffff; }
+  .sec-inner{ width:100%; max-width:520px; }
+
+  /* ===== NIKAH DETAILS ===== */
+  .event-list{
+    display:flex;
+    flex-direction:column;
+    gap:clamp(22px,5.5vw,34px);
+  }
+  .event-row{
+    display:flex;
+    flex-direction:column;
+    gap:clamp(5px,1.4vw,9px);
+  }
+  .event-term{
+    font-family:var(--sans);
+    font-weight:400;
+    letter-spacing:.34em;
+    text-transform:uppercase;
+    font-size:clamp(8px,2.2vw,11px);
+    color:var(--burgundy);
+    opacity:.62;
+    padding-left:.34em;
+  }
+  .event-detail{
+    font-family:var(--serif);
+    font-weight:500;
+    font-size:clamp(19px,5.4vw,27px);
+    line-height:1.3;
+    color:var(--burgundy);
+  }
+  .event-detail small{
+    display:block;
+    font-family:var(--serif);
+    font-weight:400;
+    font-size:.72em;
+    opacity:.8;
+    margin-top:.25em;
+  }
+
+  /* ===== MAP ===== */
+  .map-frame{
+    width:100%;
+    aspect-ratio:4 / 3;
+    border:1px solid rgba(123,34,51,.16);
+    overflow:hidden;
+    background:#f2ece1;
+  }
+  .map-frame iframe{
+    display:block;
+    width:100%;
+    height:100%;
+    border:0;
+  }
+  .map-link{
+    display:inline-block;
+    margin-top:clamp(18px,4.4vw,28px);
+    font-family:var(--sans);
+    font-weight:400;
+    letter-spacing:.28em;
+    text-transform:uppercase;
+    font-size:clamp(8px,2.2vw,11px);
+    color:var(--burgundy);
+    text-decoration:none;
+    padding:.85em 1.6em .85em calc(1.6em + .28em);
+    border:1px solid rgba(201,163,91,.65);
+    transition:background-color .3s var(--ease);
+  }
+  .map-link:hover,.map-link:focus-visible{ background:rgba(201,163,91,.12); }
+
+  /* ===== WISHES WALL ===== */
+  .wish-form{
+    display:flex;
+    flex-direction:column;
+    gap:clamp(10px,2.6vw,14px);
+    width:100%;
+  }
+  .wish-form label{
+    position:absolute;
+    width:1px;height:1px;
+    overflow:hidden;
+    clip:rect(0 0 0 0);
+    white-space:nowrap;
+  }
+  .wish-form input,.wish-form textarea{
+    width:100%;
+    font-family:var(--serif);
+    font-size:clamp(15px,4vw,18px);
+    color:var(--burgundy);
+    background:#fff;
+    border:1px solid rgba(123,34,51,.18);
+    padding:.85em 1em;
+    border-radius:0;
+    -webkit-appearance:none;
+  }
+  .wish-form textarea{ min-height:5.5em; resize:vertical; line-height:1.5; }
+  .wish-form input::placeholder,.wish-form textarea::placeholder{ color:rgba(123,34,51,.42); }
+  .wish-form input:focus,.wish-form textarea:focus{
+    outline:none;
+    border-color:var(--gold);
+  }
+  .wish-send{
+    align-self:center;
+    margin-top:clamp(4px,1.4vw,8px);
+    font-family:var(--sans);
+    font-weight:400;
+    letter-spacing:.28em;
+    text-transform:uppercase;
+    font-size:clamp(8px,2.2vw,11px);
+    color:var(--burgundy);
+    background:transparent;
+    border:1px solid rgba(201,163,91,.65);
+    padding:.95em 2.1em .95em calc(2.1em + .28em);
+    cursor:pointer;
+    transition:background-color .3s var(--ease);
+  }
+  .wish-send:hover,.wish-send:focus-visible{ background:rgba(201,163,91,.12); }
+  .wish-status{
+    margin-top:clamp(10px,2.6vw,16px);
+    font-family:var(--serif);
+    font-style:italic;
+    font-size:clamp(13px,3.4vw,16px);
+    color:var(--burgundy);
+    opacity:.8;
+    min-height:1.4em;
+  }
+  .wish-list{
+    list-style:none;
+    margin-top:clamp(26px,7vw,44px);
+    display:flex;
+    flex-direction:column;
+    gap:clamp(14px,3.6vw,20px);
+    width:100%;
+  }
+  .wish-list:empty{ display:none; }
+  .wish-card{
+    background:#fff;
+    border:1px solid rgba(123,34,51,.14);
+    padding:clamp(16px,4.2vw,24px);
+    text-align:left;
+  }
+  .wish-card p{
+    font-family:var(--serif);
+    font-size:clamp(15px,4vw,18px);
+    line-height:1.55;
+    color:var(--burgundy);
+  }
+  .wish-card cite{
+    display:block;
+    margin-top:.7em;
+    font-family:var(--sans);
+    font-style:normal;
+    font-weight:400;
+    letter-spacing:.24em;
+    text-transform:uppercase;
+    font-size:clamp(8px,2.1vw,10px);
+    color:var(--burgundy);
+    opacity:.6;
+  }
+
+  /* ===== FOOTER ===== */
+  .site-footer{
+    background:var(--burgundy);
+    color:var(--ivory);
+    padding:clamp(52px,13vw,90px) 24px calc(clamp(52px,13vw,90px) + env(safe-area-inset-bottom));
+    text-align:center;
+  }
+  .footer-mono{
+    width:clamp(64px,17vw,96px);
+    height:auto;
+    margin:0 auto clamp(16px,4vw,26px);
+    opacity:.9;
+    filter:brightness(0) invert(1) opacity(.85);
+  }
+  .footer-names{
+    font-family:var(--serif);
+    font-weight:400;
+    font-size:clamp(22px,6.4vw,34px);
+    line-height:1.15;
+  }
+  .footer-names .amp{ font-style:italic; color:var(--gold-soft); margin:0 .2em; }
+  .footer-date{
+    margin-top:clamp(10px,2.6vw,16px);
+    font-family:var(--sans);
+    font-weight:400;
+    letter-spacing:.3em;
+    text-transform:uppercase;
+    font-size:clamp(8px,2.2vw,11px);
+    opacity:.85;
+    padding-left:.3em;
+  }
+  .footer-thanks{
+    margin-top:clamp(22px,5.6vw,34px);
+    font-family:var(--serif);
+    font-style:italic;
+    font-size:clamp(14px,3.8vw,18px);
+    opacity:.85;
   }
 
   /* Scroll cue (functional cue only) */
@@ -587,8 +798,8 @@
   </section>
 
   <section class="date-reveal">
-    <h2 class="reveal-heading">Scratch to Reveal</h2>
-    <span class="reveal-rule" aria-hidden="true"></span>
+    <h2 class="sec-heading">Scratch to Reveal</h2>
+    <span class="sec-rule" aria-hidden="true"></span>
 
     <div class="scratch" id="scratch" role="button" tabindex="0"
          aria-label="Scratch to reveal the wedding date">
@@ -599,6 +810,86 @@
       <canvas class="scratch-foil" id="scratchFoil" aria-hidden="true"></canvas>
     </div>
   </section>
+
+  <!-- ============================================================
+       PLACEHOLDERS - replace with the real details.
+       Everything marked TODO below is a guess, not a known fact.
+       ============================================================ -->
+
+  <section class="sec sec--white" id="nikah">
+    <div class="sec-inner">
+      <h2 class="sec-heading">The Nikah</h2>
+      <span class="sec-rule" aria-hidden="true"></span>
+
+      <dl class="event-list">
+        <div class="event-row">
+          <dt class="event-term">Date</dt>
+          <dd class="event-detail"><time datetime="2026-09-27">Sunday, 27 September 2026</time></dd>
+        </div>
+        <div class="event-row">
+          <dt class="event-term">Time</dt>
+          <!-- TODO: real time -->
+          <dd class="event-detail">11:00 AM<small>Lunch to follow</small></dd>
+        </div>
+        <div class="event-row">
+          <dt class="event-term">Venue</dt>
+          <!-- TODO: real venue name and address -->
+          <dd class="event-detail">Venue Name<small>Kokkada, Dakshina Kannada, Karnataka</small></dd>
+        </div>
+      </dl>
+    </div>
+  </section>
+
+  <section class="sec sec--ivory" id="location">
+    <div class="sec-inner">
+      <h2 class="sec-heading">Find Your Way</h2>
+      <span class="sec-rule" aria-hidden="true"></span>
+
+      <div class="map-frame">
+        <!-- TODO: swap the q= value for the exact venue or its coordinates -->
+        <iframe
+          title="Map to the wedding venue"
+          src="https://www.google.com/maps?q=Kokkada%2C%20Karnataka&amp;output=embed"
+          loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade"
+          allowfullscreen></iframe>
+      </div>
+
+      <a class="map-link"
+         href="https://www.google.com/maps/search/?api=1&amp;query=Kokkada%2C%20Karnataka"
+         target="_blank" rel="noopener">Open in Maps</a>
+    </div>
+  </section>
+
+  <section class="sec sec--white" id="wishes">
+    <div class="sec-inner">
+      <h2 class="sec-heading">Wishes</h2>
+      <span class="sec-rule" aria-hidden="true"></span>
+
+      <form class="wish-form" id="wishForm" novalidate>
+        <label for="wishName">Your name</label>
+        <input id="wishName" name="name" type="text" placeholder="Your name"
+               maxlength="60" autocomplete="name" required />
+
+        <label for="wishText">Your wish</label>
+        <textarea id="wishText" name="message" placeholder="Leave a wish for the couple"
+                  maxlength="400" required></textarea>
+
+        <button class="wish-send" type="submit">Send Wish</button>
+      </form>
+
+      <p class="wish-status" id="wishStatus" role="status" aria-live="polite"></p>
+
+      <ul class="wish-list" id="wishList"></ul>
+    </div>
+  </section>
+
+  <footer class="site-footer">
+    <img class="footer-mono" src="image/mono.webp" alt="" />
+    <p class="footer-names">Thanseefa<span class="amp">&amp;</span>Shakeer</p>
+    <p class="footer-date"><time datetime="2026-09-27">27 September 2026</time></p>
+    <p class="footer-thanks">With love and gratitude</p>
+  </footer>
 
   <!-- Fallback control if autoplay is blocked by the browser -->
   <button class="autoplay-fallback" id="autoplayFallback" type="button">
@@ -723,6 +1014,84 @@
     if (started && !revealed) revealHero();
   });
 
+})();
+
+/* ---------- wishes wall ----------
+   WISHES_ENDPOINT: set this to a URL that accepts a JSON POST ({name, message})
+   and wishes become shared between guests. While it is empty a wish is kept in
+   this browser only, and the guest is told so rather than being led to believe
+   it reached the couple. */
+(function(){
+  "use strict";
+
+  var WISHES_ENDPOINT = "";          // <-- TODO: put your form/collector URL here
+
+  var form   = document.getElementById('wishForm');
+  var list   = document.getElementById('wishList');
+  var status = document.getElementById('wishStatus');
+  if (!form || !list || !status) return;
+
+  var KEY = 'tw-wishes';
+
+  function load(){
+    try { return JSON.parse(localStorage.getItem(KEY)) || []; }
+    catch (e) { return []; }
+  }
+  function save(items){
+    try { localStorage.setItem(KEY, JSON.stringify(items)); } catch (e) {}
+  }
+
+  function render(items){
+    list.textContent = '';
+    items.forEach(function(w){
+      var li = document.createElement('li');
+      li.className = 'wish-card';
+      var p = document.createElement('p');
+      p.textContent = w.message;          // textContent, never innerHTML
+      var cite = document.createElement('cite');
+      cite.textContent = w.name;
+      li.appendChild(p);
+      li.appendChild(cite);
+      list.appendChild(li);
+    });
+  }
+
+  form.addEventListener('submit', function(e){
+    e.preventDefault();
+    var name = form.name.value.trim();
+    var message = form.message.value.trim();
+    if (!name || !message){
+      status.textContent = 'Please add your name and a wish.';
+      return;
+    }
+
+    var wish = {name:name, message:message, at:Date.now()};
+
+    if (WISHES_ENDPOINT){
+      status.textContent = 'Sending\u2026';
+      fetch(WISHES_ENDPOINT, {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify(wish)
+      }).then(function(r){
+        if (!r.ok) throw new Error(r.status);
+        status.textContent = 'Thank you \u2014 your wish has been sent.';
+        form.reset();
+      }).catch(function(){
+        status.textContent = 'That did not send. Please try again.';
+      });
+      return;
+    }
+
+    var items = load();
+    items.unshift(wish);
+    save(items);
+    render(items);
+    form.reset();
+    status.textContent = 'Saved on this device only \u2014 wishes are not yet being collected.';
+  });
+
+  render(load());
 })();
 
 /* ---------- scratch-to-reveal the date ---------- */
