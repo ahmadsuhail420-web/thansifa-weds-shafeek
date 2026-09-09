@@ -29,6 +29,10 @@
     --seal-overhang:32.2vw;
     --seal-lift:6vh;           /* how far the flower band rides above the seam */
     --art-tuck:.8;            /* fraction of the band's overhang that 2.webp slides under */
+    --bismillah-lift:1vw;    /* the opening rides up on its own, via transform */
+    /* mono.webp carries ~7.5% transparent padding on top, so the art clears the
+       eyebrow even once the boxes touch; capped so wide screens don't overshoot */
+    --mono-lift:clamp(6px,2.4vw,13px);
   }
 
   *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
@@ -213,6 +217,8 @@
     width:clamp(132px,44vw,208px);
     height:auto;
     max-width:none;
+    /* transform, not margin: the slot height is unchanged so the names hold */
+    transform:translateY(calc(-1 * var(--mono-lift)));
   }
   .hero-names{
     font-family:var(--serif);
@@ -305,9 +311,16 @@
   }
   .invite-group > * + *{ margin-top:clamp(2px,.7vw,6px); }   /* tight within a group */
 
+  /* transform, not margin: only the opening moves, everything below stays put */
+  .invite-opening{ transform:translateY(calc(-1 * var(--bismillah-lift))); }
+
   /* small gap after the Bismillah, clear gaps around the invitation sentence */
   .invite-hosts-group{ margin-top:clamp(7px,2.2vw,16px); }
-  .invite-request{ margin-top:clamp(16px,6.4vw,44px); }
+  .invite-request{
+    margin-top:clamp(16px,6.4vw,44px);
+    max-width:80%;             /* narrower than the rest of the wording */
+    text-wrap:balance;         /* even line lengths instead of an orphan word */
+  }
   .invite-couple{ margin-top:clamp(16px,6.4vw,44px); }
   .invite-couple .invite-amp{ margin-top:clamp(5px,1.8vw,12px); }
   .invite-couple .invite-name{ margin-top:clamp(4px,1.4vw,10px); }
@@ -470,7 +483,7 @@
       <img class="after-hero-art" src="image/2.webp" alt="" />
 
       <div class="invite-text">
-        <div class="invite-group">
+        <div class="invite-group invite-opening">
           <p class="invite-bismillah" lang="ar">&#1576;&#1587;&#1605; &#1575;&#1604;&#1604;&#1607; &#1575;&#1604;&#1585;&#1581;&#1605;&#1606; &#1575;&#1604;&#1585;&#1581;&#1610;&#1605;</p>
           <p class="invite-sub">In the name of Allah<br />the most beneficient the most merciful</p>
         </div>
