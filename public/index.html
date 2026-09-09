@@ -9,7 +9,7 @@
 <link rel="preload" as="image" href="image/w-poster.webp" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cormorant+Garamond:wght@300;400;500;600&family=Josefin+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cormorant+Garamond:wght@300;400;500;600&family=Great+Vibes&family=Josefin+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
 
 <style>
   :root{
@@ -23,6 +23,7 @@
     --sans:'Josefin Sans', -apple-system, BlinkMacSystemFont, sans-serif;
     --serif:'Cormorant Garamond', 'Times New Roman', serif;
     --arabic:'Amiri', 'Traditional Arabic', serif;
+    --script:'Great Vibes', 'Snell Roundhand', cursive;
     --ease:cubic-bezier(.22,.61,.36,1);
     --hero-header-top:4.5vh;   /* masthead offset from the top of the hero */
     /* seal spans the full width; 1230x792 art means height = 64.4vw, so half is: */
@@ -30,9 +31,12 @@
     --seal-lift:6vh;           /* how far the flower band rides above the seam */
     --art-tuck:.8;            /* fraction of the band's overhang that 2.webp slides under */
     --bismillah-lift:1vw;    /* the opening rides up on its own, via transform */
-    /* mono.webp carries ~7.5% transparent padding on top, so the art clears the
-       eyebrow even once the boxes touch; capped so wide screens don't overshoot */
-    --mono-lift:clamp(6px,2.4vw,13px);
+    --mono-w:clamp(132px,44vw,208px);   /* monogram width */
+    /* mono.webp is 7.5% transparent at the top and 6.5% at the bottom; those
+       are cancelled below so the gaps measure to the visible art, not the box */
+    --mono-pad-top:.075;
+    --mono-pad-bottom:.065;
+    --hero-stack-gap:clamp(14px,4.4vw,38px);  /* equal space between all three */
     /* nikah.webp's card is not square to the frame; its clean left edge
        measures -5.3deg, so the text is set to match */
     --nikah-tilt:-5.4deg;
@@ -185,6 +189,7 @@
     align-items:center;
     text-align:center;
     padding:calc(var(--hero-header-top) + env(safe-area-inset-top)) 24px 0;
+    gap:var(--hero-stack-gap);
   }
   .hero-eyebrow{
     font-family:var(--sans);
@@ -194,30 +199,26 @@
     font-size:.62rem;
     color:var(--burgundy);
     padding-left:.42em;
-    /* transform, not margin: the names below must not move */
-    transform:translateY(-3vh);
   }
-  /* the slot keeps the old layout height; the image overflows it symmetrically,
-     so the monogram can grow without moving the names below */
   .hero-mono-slot{
-    height:clamp(88px,29vw,140px);
-    margin:.9rem 0 .7rem;
     display:flex;
     align-items:center;
     justify-content:center;
   }
   .hero-mono{
-    width:clamp(132px,44vw,208px);
+    width:var(--mono-w);
     height:auto;
     max-width:none;
-    /* transform, not margin: the slot height is unchanged so the names hold */
-    transform:translateY(calc(-1 * var(--mono-lift)));
+    /* pull the box in to the artwork's own edges so the gap above and below
+       the monogram matches the gap between the text lines */
+    margin-top:calc(var(--mono-w) * -1 * var(--mono-pad-top));
+    margin-bottom:calc(var(--mono-w) * -1 * var(--mono-pad-bottom));
   }
   .hero-names{
-    font-family:var(--serif);
+    font-family:var(--script);
     font-weight:400;
-    font-size:clamp(1.3rem,6vw,1.95rem);
-    line-height:1.1;
+    font-size:clamp(2rem,9vw,3.1rem);
+    line-height:1.15;
     color:var(--ink);
   }
   .hero-names .amp{
