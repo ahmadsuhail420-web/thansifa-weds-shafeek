@@ -459,6 +459,48 @@
   .sec--white{ background:#ffffff; }
   .sec-inner{ width:100%; max-width:520px; }
 
+  /* ===== COUNTDOWN ===== */
+  .count-grid{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    width:100%;
+    max-width:430px;
+    margin:0 auto;
+  }
+  .count-cell{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:clamp(6px,1.8vw,11px);
+    padding:0 clamp(2px,1vw,8px);
+  }
+  .count-cell + .count-cell{ border-left:1px solid rgba(201,163,91,.4); }
+  .count-num{
+    font-family:var(--serif);
+    font-weight:500;
+    font-size:clamp(26px,8.4vw,44px);
+    line-height:1;
+    color:var(--burgundy);
+    font-variant-numeric:tabular-nums;   /* digits keep their width as they tick */
+    font-feature-settings:"tnum" 1;
+  }
+  .count-lab{
+    font-family:var(--sans);
+    font-weight:400;
+    letter-spacing:.24em;
+    text-transform:uppercase;
+    font-size:clamp(7px,2vw,10px);
+    color:var(--burgundy);
+    opacity:.6;
+    padding-left:.24em;
+  }
+  .count-done{
+    font-family:var(--serif);
+    font-style:italic;
+    font-size:clamp(17px,4.8vw,24px);
+    color:var(--burgundy);
+  }
+
   /* ===== NIKAH DETAILS ===== */
   .event-list{
     display:flex;
@@ -647,8 +689,19 @@
     opacity:.85;
     padding-left:.3em;
   }
+  .footer-gift{
+    margin-top:clamp(24px,6vw,36px);
+    font-family:var(--sans);
+    font-weight:400;
+    letter-spacing:.2em;
+    text-transform:uppercase;
+    font-size:clamp(8px,2.1vw,10px);
+    line-height:1.9;
+    opacity:.72;
+    padding-left:.2em;
+  }
   .footer-thanks{
-    margin-top:clamp(22px,5.6vw,34px);
+    margin-top:clamp(14px,3.4vw,20px);
     font-family:var(--serif);
     font-style:italic;
     font-size:clamp(14px,3.8vw,18px);
@@ -816,7 +869,24 @@
        Everything marked TODO below is a guess, not a known fact.
        ============================================================ -->
 
-  <section class="sec sec--white" id="nikah">
+  <section class="sec sec--white" id="countdown">
+    <div class="sec-inner">
+      <h2 class="sec-heading">Counting Down</h2>
+      <span class="sec-rule" aria-hidden="true"></span>
+
+      <!-- digits tick every second; the full date is stated in The Nikah below,
+           so this is hidden from screen readers rather than announced repeatedly -->
+      <div class="count-grid" id="countGrid" aria-hidden="true">
+        <div class="count-cell"><span class="count-num" id="cdD">--</span><span class="count-lab">Days</span></div>
+        <div class="count-cell"><span class="count-num" id="cdH">--</span><span class="count-lab">Hours</span></div>
+        <div class="count-cell"><span class="count-num" id="cdM">--</span><span class="count-lab">Minutes</span></div>
+        <div class="count-cell"><span class="count-num" id="cdS">--</span><span class="count-lab">Seconds</span></div>
+      </div>
+      <p class="count-done" id="countDone" hidden>Alhamdulillah &mdash; the day has come.</p>
+    </div>
+  </section>
+
+  <section class="sec sec--ivory" id="nikah">
     <div class="sec-inner">
       <h2 class="sec-heading">The Nikah</h2>
       <span class="sec-rule" aria-hidden="true"></span>
@@ -840,7 +910,7 @@
     </div>
   </section>
 
-  <section class="sec sec--ivory" id="location">
+  <section class="sec sec--white" id="location">
     <div class="sec-inner">
       <h2 class="sec-heading">Find Your Way</h2>
       <span class="sec-rule" aria-hidden="true"></span>
@@ -861,7 +931,7 @@
     </div>
   </section>
 
-  <section class="sec sec--white" id="wishes">
+  <section class="sec sec--ivory" id="wishes">
     <div class="sec-inner">
       <h2 class="sec-heading">Wishes</h2>
       <span class="sec-rule" aria-hidden="true"></span>
@@ -888,6 +958,7 @@
     <img class="footer-mono" src="image/mono.webp" alt="" />
     <p class="footer-names">Thanseefa<span class="amp">&amp;</span>Shakeer</p>
     <p class="footer-date"><time datetime="2026-09-27">27 September 2026</time></p>
+    <p class="footer-gift">No gifts, please<br />your prayers are enough</p>
     <p class="footer-thanks">With love and gratitude</p>
   </footer>
 
@@ -1014,6 +1085,44 @@
     if (started && !revealed) revealHero();
   });
 
+})();
+
+/* ---------- countdown ---------- */
+(function(){
+  "use strict";
+
+  /* TODO: adjust once the ceremony time is settled. +05:30 is IST, so the
+     countdown is the same for a guest in Dubai as one in Mangalore. */
+  var WEDDING_AT = '2026-09-27T11:00:00+05:30';
+
+  var grid = document.getElementById('countGrid');
+  var done = document.getElementById('countDone');
+  var D = document.getElementById('cdD'), H = document.getElementById('cdH'),
+      M = document.getElementById('cdM'), S = document.getElementById('cdS');
+  if (!grid || !D) return;
+
+  var target = new Date(WEDDING_AT).getTime();
+  if (isNaN(target)) return;                 // bad date: leave the dashes alone
+
+  function pad(n){ return n < 10 ? '0' + n : String(n); }
+
+  function tick(){
+    var diff = target - Date.now();
+    if (diff <= 0){
+      grid.hidden = true;
+      if (done) done.hidden = false;
+      clearInterval(timer);
+      return;
+    }
+    var sec = Math.floor(diff / 1000);
+    D.textContent = String(Math.floor(sec / 86400));
+    H.textContent = pad(Math.floor(sec / 3600) % 24);
+    M.textContent = pad(Math.floor(sec / 60) % 60);
+    S.textContent = pad(sec % 60);
+  }
+
+  tick();
+  var timer = setInterval(tick, 1000);
 })();
 
 /* ---------- wishes wall ----------
