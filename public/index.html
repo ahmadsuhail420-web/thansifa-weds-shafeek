@@ -165,7 +165,9 @@
        here: it re-resolves as the bar retracts and the section would resize. */
     height:100vh;          /* fallback for browsers without svh */
     height:100svh;
-    background:#ffffff;
+    /* matches the video's own ivory ground, so there is no white flash
+       before the first frame paints */
+    background:#f6f1ec;
     opacity:0;
     visibility:hidden;
     z-index:2;                 /* keeps the seal above the next section */
