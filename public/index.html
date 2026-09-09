@@ -228,6 +228,30 @@
     margin:0 .22em;
   }
 
+  /* --- hanging lamps in the top corners --- */
+  .hero-light{
+    position:absolute;
+    top:0;
+    z-index:2;                 /* over the video, under the masthead */
+    width:clamp(58px,19vw,124px);
+    height:auto;
+    max-width:none;
+    pointer-events:none;
+    /* the lamp hangs from a cord at the very top of the file, so it has to
+       swing from there rather than from its middle */
+    transform-origin:top center;
+    animation:sway 6s ease-in-out infinite alternate;
+  }
+  .hero-light--left{ left:0; }
+  .hero-light--right{ right:0; animation-delay:-2.6s; }
+  @keyframes sway{
+    from{ transform:rotate(-2.4deg); }
+    to  { transform:rotate(2.4deg); }
+  }
+  @media (prefers-reduced-motion:reduce){
+    .hero-light{ animation:none; }
+  }
+
   /* --- video is the hero's full background --- */
   .hero-media{
     position:absolute;
@@ -504,7 +528,7 @@
     width:calc(100% + 48px);   /* breaks out of the section's side padding */
     margin:0 -24px;
   }
-  .nikah-art > img{
+  .nikah-card{
     display:block;
     width:100%;
     height:auto;
@@ -512,6 +536,17 @@
     /* drop-shadow, not box-shadow: the art is a cutout with a transparent
        surround, so the shadow must follow its silhouette */
     filter:drop-shadow(0 clamp(6px,1.6vw,14px) clamp(12px,3.2vw,26px) rgba(90,25,40,.28));
+  }
+  /* sits above the roses on the right of the artwork */
+  .nikah-butterfly{
+    position:absolute;
+    top:6%;
+    right:4%;
+    width:clamp(52px,17vw,130px);
+    height:auto;
+    max-width:none;
+    z-index:2;
+    pointer-events:none;
   }
   .nikah-panel{
     position:absolute;
@@ -685,6 +720,45 @@
     opacity:.6;
   }
 
+  /* ===== CONTACT ===== */
+  .contact-grid{
+    display:grid;
+    grid-template-columns:1fr auto;
+    align-items:center;
+    gap:clamp(14px,4vw,40px);
+    width:100%;
+    text-align:left;
+  }
+  .contact-list{
+    display:flex;
+    flex-direction:column;
+    gap:clamp(20px,5.5vw,34px);
+  }
+  .contact-role{
+    font-family:var(--sans);
+    font-weight:400;
+    letter-spacing:.26em;
+    text-transform:uppercase;
+    font-size:clamp(8px,2.3vw,12px);
+    color:var(--burgundy);
+    opacity:.62;
+    padding-left:.26em;
+  }
+  .contact-name{
+    font-family:var(--serif);
+    font-weight:500;
+    font-size:clamp(17px,5vw,26px);
+    line-height:1.25;
+    color:var(--burgundy);
+    margin-top:.25em;
+  }
+  .contact-art{
+    width:clamp(112px,34vw,230px);
+    height:auto;
+    max-width:none;
+    justify-self:end;
+  }
+
   /* ===== FOOTER ===== */
   .site-footer{
     background:var(--burgundy);
@@ -831,6 +905,9 @@
       <h1 class="hero-names">Thanseefa<span class="amp">&amp;</span>Shakeer</h1>
     </header>
 
+    <img class="hero-light hero-light--left" src="image/light.webp" alt="" />
+    <img class="hero-light hero-light--right" src="image/light.webp" alt="" />
+
     <div class="hero-media">
       <video id="hero-video" playsinline muted loop preload="auto" webkit-playsinline
              src="video/h-bg.mp4"></video>
@@ -913,7 +990,8 @@
     </div>
 
     <div class="nikah-art">
-      <img src="image/nikah.webp" alt="" />
+      <img class="nikah-card" src="image/nikah.webp" alt="" />
+      <img class="nikah-butterfly" src="image/butterfly.gif" alt="" />
 
       <dl class="nikah-panel">
         <div class="nikah-row">
@@ -972,6 +1050,30 @@
       <p class="wish-status" id="wishStatus" role="status" aria-live="polite"></p>
 
       <ul class="wish-list" id="wishList"></ul>
+    </div>
+  </section>
+
+  <section class="sec sec--white" id="contact">
+    <div class="sec-inner">
+      <h2 class="sec-heading">Contact</h2>
+      <span class="sec-rule" aria-hidden="true"></span>
+
+      <div class="contact-grid">
+        <dl class="contact-list">
+          <div>
+            <dt class="contact-role">Bride&rsquo;s Father</dt>
+            <!-- TODO: wrap the name in <a href="tel:+91..."> once you have the number -->
+            <dd class="contact-name">Mr. Isubu</dd>
+          </div>
+          <div>
+            <dt class="contact-role">Groom&rsquo;s Father</dt>
+            <!-- TODO: wrap the name in <a href="tel:+91..."> once you have the number -->
+            <dd class="contact-name">Mr. Hassainar</dd>
+          </div>
+        </dl>
+
+        <img class="contact-art" src="image/call.webp" alt="" />
+      </div>
     </div>
   </section>
 
