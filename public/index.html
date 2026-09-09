@@ -368,35 +368,37 @@
   .date-reveal{
     position:relative;
     z-index:1;
-    background:#ffffff url("image/1.webp") center top / cover no-repeat;
-    padding:clamp(48px,12vw,96px) 24px clamp(56px,14vw,110px);
+    background:#fbf7f0;        /* warm ivory, deliberately unlike the card section */
+    padding:clamp(64px,16vw,132px) 24px clamp(72px,18vw,148px);
     display:flex;
     flex-direction:column;
     align-items:center;
     text-align:center;
   }
-  .date-kicker{
-    font-family:var(--sans);
-    font-weight:500;
-    letter-spacing:.36em;
-    text-transform:uppercase;
-    font-size:clamp(8px,2.4vw,13px);
-    color:var(--champagne);
-    text-shadow:0 1px 12px rgba(20,4,10,.6);
-    padding-left:.36em;
-    margin-bottom:clamp(16px,4vw,28px);
+  .reveal-heading{
+    font-family:var(--serif);
+    font-weight:400;
+    font-size:clamp(25px,7.4vw,42px);
+    line-height:1.15;
+    letter-spacing:.01em;
+    color:var(--burgundy);
+  }
+  .reveal-rule{
+    display:block;
+    width:clamp(44px,13vw,72px);
+    height:1px;
+    background:var(--gold);
+    opacity:.55;
+    margin:clamp(18px,4.6vw,30px) 0 clamp(26px,7vw,46px);
   }
 
   .scratch{
     position:relative;
-    width:min(86%,420px);
+    width:min(84%,400px);
     aspect-ratio:5 / 3;
-    border-radius:4px;
     overflow:hidden;
-    background:#fdf8f0;
-    box-shadow:0 10px 34px -14px rgba(60,10,25,.45);
-    outline:1px solid rgba(201,163,91,.5);
-    outline-offset:-6px;
+    background:#ffffff;
+    border:1px solid rgba(123,34,51,.16);
   }
   /* the date is real text underneath, so it is readable even without scratching */
   .scratch-face{
@@ -406,23 +408,23 @@
     flex-direction:column;
     align-items:center;
     justify-content:center;
-    gap:clamp(4px,1.4vw,10px);
+    gap:clamp(6px,2vw,13px);
     color:var(--burgundy);
     padding:8%;
   }
   .date-label{
     font-family:var(--sans);
-    font-weight:500;
-    letter-spacing:.3em;
+    font-weight:400;
+    letter-spacing:.34em;
     text-transform:uppercase;
-    font-size:clamp(8px,2.3vw,12px);
-    padding-left:.3em;
-    opacity:.8;
+    font-size:clamp(8px,2.2vw,11px);
+    padding-left:.34em;
+    opacity:.65;
   }
   .date-value{
     font-family:var(--serif);
     font-weight:500;
-    font-size:clamp(26px,8.6vw,46px);
+    font-size:clamp(26px,8.4vw,44px);
     line-height:1.1;
   }
 
@@ -436,27 +438,10 @@
     cursor:grab;
     transition:opacity .9s var(--ease);
   }
-  .scratch-hint{
-    position:absolute;
-    left:0;right:0;
-    bottom:12%;
-    font-family:var(--sans);
-    font-weight:400;
-    letter-spacing:.26em;
-    text-transform:uppercase;
-    font-size:clamp(8px,2.3vw,12px);
-    color:var(--ivory);
-    text-shadow:0 1px 3px rgba(40,6,16,.75), 0 0 14px rgba(40,6,16,.55);
-    padding-left:.26em;
-    pointer-events:none;
-    transition:opacity .5s var(--ease);
-  }
-  .scratch.revealed .scratch-foil,
-  .scratch.revealed .scratch-hint{ opacity:0; pointer-events:none; }
-  .scratch.scratching .scratch-hint{ opacity:0; }
+  .scratch.revealed .scratch-foil{ opacity:0; pointer-events:none; }
 
   @media (prefers-reduced-motion:reduce){
-    .scratch-foil,.scratch-hint{ transition-duration:.2s !important; }
+    .scratch-foil{ transition-duration:.2s !important; }
   }
 
   /* Scroll cue (functional cue only) */
@@ -602,7 +587,8 @@
   </section>
 
   <section class="date-reveal">
-    <p class="date-kicker">Save the date</p>
+    <h2 class="reveal-heading">Scratch to Reveal</h2>
+    <span class="reveal-rule" aria-hidden="true"></span>
 
     <div class="scratch" id="scratch" role="button" tabindex="0"
          aria-label="Scratch to reveal the wedding date">
@@ -611,7 +597,6 @@
         <p class="date-value"><time datetime="2026-09-27">27 Sep 2026</time></p>
       </div>
       <canvas class="scratch-foil" id="scratchFoil" aria-hidden="true"></canvas>
-      <p class="scratch-hint" id="scratchHint">Scratch to reveal</p>
     </div>
   </section>
 
@@ -762,14 +747,14 @@
     ctx.globalCompositeOperation = 'source-over';
 
     var g = ctx.createLinearGradient(0, 0, r.width, r.height);
-    g.addColorStop(0,   '#8d2a3c');
-    g.addColorStop(.45, '#c9a35b');
-    g.addColorStop(.55, '#d8bd82');
-    g.addColorStop(1,   '#7b2233');
+    g.addColorStop(0,   '#cbb389');
+    g.addColorStop(.42, '#e6d4ae');
+    g.addColorStop(.58, '#f0e3c6');
+    g.addColorStop(1,   '#c9a35b');
     ctx.fillStyle = g;
     ctx.fillRect(0, 0, r.width, r.height);
 
-    ctx.fillStyle = 'rgba(255,255,255,.10)';
+    ctx.fillStyle = 'rgba(255,255,255,.22)';
     for (var i = 0; i < 180; i++){
       var x = Math.random() * r.width, y = Math.random() * r.height;
       ctx.beginPath();
@@ -819,7 +804,6 @@
     if (revealed) return;
     if (!painted) paintFoil();
     started = true;
-    card.classList.add('scratching');
     last = pointAt(e);
     scratch(last, last);
     if (cvs.setPointerCapture && e.pointerId !== undefined){
