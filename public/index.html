@@ -540,7 +540,7 @@
        fill every pixel, so the leftover is left as an even top/bottom margin */
     justify-content:center;
     text-align:center;
-    gap:clamp(8px,3.6vw,30px);
+    gap:16px;
     /* one small, even margin on all four sides. Not %: percentage padding
        resolves against the containing block's width (the whole artwork),
        which would eat a third of this narrow box. */
@@ -563,7 +563,8 @@
   .nikah-detail{
     font-family:var(--serif);
     font-weight:500;
-    font-size:clamp(12px,4.05vw,62px);
+    /* 4.25vw is the ceiling that keeps 'Sunday, 27 Sep 2026' on one line */
+    font-size:clamp(12px,4.25vw,62px);
     line-height:1.16;
     text-wrap:balance;         /* avoids a lone '2026' on its own line */
     color:var(--ivory);
