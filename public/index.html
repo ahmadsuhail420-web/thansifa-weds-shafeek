@@ -33,6 +33,11 @@
     /* mono.webp carries ~7.5% transparent padding on top, so the art clears the
        eyebrow even once the boxes touch; capped so wide screens don't overshoot */
     --mono-lift:clamp(6px,2.4vw,13px);
+    /* nikah.webp's card is not square to the frame: fitting its four panel
+       edges gives top -5.2deg, left -6.1deg, bottom -8.8deg, right -9.0deg
+       (the lower/right pair are skewed by the roses overlapping them), so the
+       text is set to the cleaner top/left reading */
+    --nikah-tilt:-6deg;
   }
 
   *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
@@ -528,6 +533,7 @@
     justify-content:center;
     text-align:center;
     gap:clamp(7px,1.9vw,16px);
+    transform:rotate(var(--nikah-tilt));   /* sit square to the tilted card */
   }
   .nikah-row{ display:flex; flex-direction:column; align-items:center; gap:.25em; }
   .nikah-term{
