@@ -520,6 +520,9 @@
     width:100%;
     height:auto;
     max-width:none;
+    /* drop-shadow, not box-shadow: the art is a cutout with a transparent
+       surround, so the shadow must follow its silhouette */
+    filter:drop-shadow(0 clamp(6px,1.6vw,14px) clamp(12px,3.2vw,26px) rgba(90,25,40,.28));
   }
   .nikah-panel{
     position:absolute;
@@ -532,10 +535,12 @@
     align-items:center;
     justify-content:center;
     text-align:center;
-    gap:clamp(7px,1.9vw,16px);
+    gap:clamp(2px,0.8vw,9px);
+    /* the inset box hugs the flat colour, so pad in off the lace edge */
+    padding:1% 5%;
     transform:rotate(var(--nikah-tilt));   /* sit square to the tilted card */
   }
-  .nikah-row{ display:flex; flex-direction:column; align-items:center; gap:.25em; }
+  .nikah-row{ display:flex; flex-direction:column; align-items:center; gap:.15em; }
   .nikah-term{
     font-family:var(--sans);
     font-weight:400;
@@ -550,8 +555,9 @@
   .nikah-detail{
     font-family:var(--serif);
     font-weight:500;
-    font-size:clamp(13px,4.1vw,34px);
-    line-height:1.25;
+    font-size:clamp(10.5px,3.4vw,30px);
+    line-height:1.12;
+    text-wrap:balance;         /* avoids a lone '2026' on its own line */
     color:var(--ivory);
   }
   .nikah-detail small{
@@ -888,11 +894,6 @@
     </div>
   </section>
 
-  <!-- ============================================================
-       PLACEHOLDERS - replace with the real details.
-       Everything marked TODO below is a guess, not a known fact.
-       ============================================================ -->
-
   <section class="sec sec--white" id="countdown">
     <div class="sec-inner">
       <h2 class="sec-heading">Counting Down</h2>
@@ -922,17 +923,15 @@
       <dl class="nikah-panel">
         <div class="nikah-row">
           <dt class="nikah-term">Date</dt>
-          <dd class="nikah-detail"><time datetime="2026-09-27">27 Sep 2026</time></dd>
+          <dd class="nikah-detail"><time datetime="2026-09-27">Sunday, 27 Sep 2026</time></dd>
         </div>
         <div class="nikah-row">
           <dt class="nikah-term">Time</dt>
-          <!-- TODO: real time -->
-          <dd class="nikah-detail">11:00 AM</dd>
+          <dd class="nikah-detail">Nikah: 11:30 AM</dd>
         </div>
         <div class="nikah-row">
           <dt class="nikah-term">Venue</dt>
-          <!-- TODO: real venue name -->
-          <dd class="nikah-detail">Venue Name<small>Kokkada</small></dd>
+          <dd class="nikah-detail">Abroad Multiplex Auditorium<small>Kumbra, Puttur</small></dd>
         </div>
       </dl>
     </div>
@@ -944,17 +943,16 @@
       <span class="sec-rule" aria-hidden="true"></span>
 
       <div class="map-frame">
-        <!-- TODO: swap the q= value for the exact venue or its coordinates -->
         <iframe
           title="Map to the wedding venue"
-          src="https://www.google.com/maps?q=Kokkada%2C%20Karnataka&amp;output=embed"
+          src="https://www.google.com/maps?q=Abroad%20Multiplex%20Auditorium%2C%20Kumbra%2C%20Puttur&amp;output=embed"
           loading="lazy"
           referrerpolicy="no-referrer-when-downgrade"
           allowfullscreen></iframe>
       </div>
 
       <a class="map-link"
-         href="https://www.google.com/maps/search/?api=1&amp;query=Kokkada%2C%20Karnataka"
+         href="https://www.google.com/maps/search/?api=1&amp;query=Abroad%20Multiplex%20Auditorium%2C%20Kumbra%2C%20Puttur"
          target="_blank" rel="noopener">Open in Maps</a>
     </div>
   </section>
@@ -1119,9 +1117,9 @@
 (function(){
   "use strict";
 
-  /* TODO: adjust once the ceremony time is settled. +05:30 is IST, so the
-     countdown is the same for a guest in Dubai as one in Mangalore. */
-  var WEDDING_AT = '2026-09-27T11:00:00+05:30';
+  /* +05:30 is IST, so the countdown reads the same for a guest in Dubai as
+     one in Mangalore. Keep this in step with the time shown in The Nikah. */
+  var WEDDING_AT = '2026-09-27T11:30:00+05:30';
 
   var grid = document.getElementById('countGrid');
   var done = document.getElementById('countDone');
