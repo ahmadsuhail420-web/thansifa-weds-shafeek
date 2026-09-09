@@ -9,7 +9,7 @@
 <link rel="preload" as="image" href="image/w-poster.webp" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cormorant+Garamond:wght@300;400;500;600&family=Great+Vibes&family=Josefin+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cormorant+Garamond:wght@300;400;500;600&family=Josefin+Sans:wght@300;400;500&family=Playfair+Display:wght@400;500&display=swap" rel="stylesheet" />
 
 <style>
   :root{
@@ -23,12 +23,12 @@
     --sans:'Josefin Sans', -apple-system, BlinkMacSystemFont, sans-serif;
     --serif:'Cormorant Garamond', 'Times New Roman', serif;
     --arabic:'Amiri', 'Traditional Arabic', serif;
-    --script:'Great Vibes', 'Snell Roundhand', cursive;
+    --display:'Playfair Display', 'Cormorant Garamond', Georgia, serif;
     --ease:cubic-bezier(.22,.61,.36,1);
-    --hero-header-top:4.5vh;   /* masthead offset from the top of the hero */
+    --hero-header-top:1.6vh;   /* masthead offset from the top of the hero */
     /* seal spans the full width; 1230x792 art means height = 64.4vw, so half is: */
     --seal-overhang:32.2vw;
-    --seal-lift:6vh;           /* how far the flower band rides above the seam */
+    --seal-lift:3.4vh;         /* how far the flower band rides above the seam */
     --art-tuck:.8;            /* fraction of the band's overhang that 2.webp slides under */
     --bismillah-lift:1vw;    /* the opening rides up on its own, via transform */
     --mono-w:clamp(132px,44vw,208px);   /* monogram width */
@@ -36,7 +36,7 @@
        are cancelled below so the gaps measure to the visible art, not the box */
     --mono-pad-top:.075;
     --mono-pad-bottom:.065;
-    --hero-stack-gap:clamp(14px,4.4vw,38px);  /* equal space between all three */
+    --hero-stack-gap:clamp(11px,3.5vw,30px);  /* equal space between all three */
     /* nikah.webp's card is not square to the frame; its clean left edge
        measures -5.3deg, so the text is set to match */
     --nikah-tilt:-5.4deg;
@@ -215,9 +215,10 @@
     margin-bottom:calc(var(--mono-w) * -1 * var(--mono-pad-bottom));
   }
   .hero-names{
-    font-family:var(--script);
+    font-family:var(--display);
     font-weight:400;
-    font-size:clamp(2rem,9vw,3.1rem);
+    font-size:clamp(1.45rem,6.7vw,2.3rem);
+    letter-spacing:.012em;
     line-height:1.15;
     color:var(--ink);
   }
