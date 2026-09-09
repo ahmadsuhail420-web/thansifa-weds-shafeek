@@ -364,6 +364,101 @@
     line-height:1.2;
   }
 
+  /* ===== DATE SCRATCH-REVEAL ===== */
+  .date-reveal{
+    position:relative;
+    z-index:1;
+    background:#ffffff url("image/1.webp") center top / cover no-repeat;
+    padding:clamp(48px,12vw,96px) 24px clamp(56px,14vw,110px);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    text-align:center;
+  }
+  .date-kicker{
+    font-family:var(--sans);
+    font-weight:500;
+    letter-spacing:.36em;
+    text-transform:uppercase;
+    font-size:clamp(8px,2.4vw,13px);
+    color:var(--champagne);
+    text-shadow:0 1px 12px rgba(20,4,10,.6);
+    padding-left:.36em;
+    margin-bottom:clamp(16px,4vw,28px);
+  }
+
+  .scratch{
+    position:relative;
+    width:min(86%,420px);
+    aspect-ratio:5 / 3;
+    border-radius:4px;
+    overflow:hidden;
+    background:#fdf8f0;
+    box-shadow:0 10px 34px -14px rgba(60,10,25,.45);
+    outline:1px solid rgba(201,163,91,.5);
+    outline-offset:-6px;
+  }
+  /* the date is real text underneath, so it is readable even without scratching */
+  .scratch-face{
+    position:absolute;
+    inset:0;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:clamp(4px,1.4vw,10px);
+    color:var(--burgundy);
+    padding:8%;
+  }
+  .date-label{
+    font-family:var(--sans);
+    font-weight:500;
+    letter-spacing:.3em;
+    text-transform:uppercase;
+    font-size:clamp(8px,2.3vw,12px);
+    padding-left:.3em;
+    opacity:.8;
+  }
+  .date-value{
+    font-family:var(--serif);
+    font-weight:500;
+    font-size:clamp(26px,8.6vw,46px);
+    line-height:1.1;
+  }
+
+  .scratch-foil{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    display:block;
+    touch-action:none;         /* dragging scratches instead of scrolling */
+    cursor:grab;
+    transition:opacity .9s var(--ease);
+  }
+  .scratch-hint{
+    position:absolute;
+    left:0;right:0;
+    bottom:12%;
+    font-family:var(--sans);
+    font-weight:400;
+    letter-spacing:.26em;
+    text-transform:uppercase;
+    font-size:clamp(8px,2.3vw,12px);
+    color:var(--ivory);
+    text-shadow:0 1px 3px rgba(40,6,16,.75), 0 0 14px rgba(40,6,16,.55);
+    padding-left:.26em;
+    pointer-events:none;
+    transition:opacity .5s var(--ease);
+  }
+  .scratch.revealed .scratch-foil,
+  .scratch.revealed .scratch-hint{ opacity:0; pointer-events:none; }
+  .scratch.scratching .scratch-hint{ opacity:0; }
+
+  @media (prefers-reduced-motion:reduce){
+    .scratch-foil,.scratch-hint{ transition-duration:.2s !important; }
+  }
+
   /* Scroll cue (functional cue only) */
   .scroll-cue{
     position:absolute;
@@ -506,6 +601,20 @@
     </div>
   </section>
 
+  <section class="date-reveal">
+    <p class="date-kicker">Save the date</p>
+
+    <div class="scratch" id="scratch" role="button" tabindex="0"
+         aria-label="Scratch to reveal the wedding date">
+      <div class="scratch-face">
+        <p class="date-label">Date</p>
+        <p class="date-value"><time datetime="2026-09-27">27 Sep 2026</time></p>
+      </div>
+      <canvas class="scratch-foil" id="scratchFoil" aria-hidden="true"></canvas>
+      <p class="scratch-hint" id="scratchHint">Scratch to reveal</p>
+    </div>
+  </section>
+
   <!-- Fallback control if autoplay is blocked by the browser -->
   <button class="autoplay-fallback" id="autoplayFallback" type="button">
     <span class="play-tri" aria-hidden="true"></span>
@@ -547,14 +656,24 @@
     hero.classList.add('reveal');
     document.body.classList.add('unlocked');
 
-    var p = heroVideo.play();
-    if (p && typeof p.catch === 'function'){
-      p.catch(function(){
-        showFallback();
-        fallbackBtn.onclick = function(){
-          heroVideo.play().then(hideFallback).catch(function(){});
-        };
-      });
+    /* any Play button raised for the welcome video is meaningless once that
+       scene is over, so clear it before deciding about the hero video */
+    hideFallback();
+    fallbackBtn.onclick = null;
+
+    /* the hero video may be hidden; playing it would only surface a stray
+       Play button over the page, so skip it entirely when it is not shown */
+    var shown = heroVideo.offsetWidth > 0 || heroVideo.offsetHeight > 0;
+    if (shown){
+      var p = heroVideo.play();
+      if (p && typeof p.catch === 'function'){
+        p.catch(function(){
+          showFallback();
+          fallbackBtn.onclick = function(){
+            heroVideo.play().then(hideFallback).catch(function(){});
+          };
+        });
+      }
     }
 
     setTimeout(function(){
@@ -619,6 +738,136 @@
     if (started && !revealed) revealHero();
   });
 
+})();
+
+/* ---------- scratch-to-reveal the date ---------- */
+(function(){
+  "use strict";
+
+  var card = document.getElementById('scratch');
+  var cvs  = document.getElementById('scratchFoil');
+  if (!card || !cvs || !cvs.getContext) return;   // no canvas: the date is already legible
+
+  var ctx = cvs.getContext('2d', {willReadFrequently:true});
+  var painted = false, started = false, revealed = false;
+  var last = null, checkTick = 0;
+
+  function paintFoil(){
+    var r = card.getBoundingClientRect();
+    if (!r.width || !r.height) return;
+    var dpr = Math.min(window.devicePixelRatio || 1, 2);
+    cvs.width  = Math.round(r.width  * dpr);
+    cvs.height = Math.round(r.height * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.globalCompositeOperation = 'source-over';
+
+    var g = ctx.createLinearGradient(0, 0, r.width, r.height);
+    g.addColorStop(0,   '#8d2a3c');
+    g.addColorStop(.45, '#c9a35b');
+    g.addColorStop(.55, '#d8bd82');
+    g.addColorStop(1,   '#7b2233');
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, r.width, r.height);
+
+    ctx.fillStyle = 'rgba(255,255,255,.10)';
+    for (var i = 0; i < 180; i++){
+      var x = Math.random() * r.width, y = Math.random() * r.height;
+      ctx.beginPath();
+      ctx.arc(x, y, Math.random() * 1.6 + .3, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    painted = true;
+  }
+
+  function pointAt(e){
+    var r = cvs.getBoundingClientRect();
+    return {x: e.clientX - r.left, y: e.clientY - r.top};
+  }
+
+  function scratch(from, to){
+    var w = cvs.getBoundingClientRect().width;
+    ctx.globalCompositeOperation = 'destination-out';
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.lineWidth = Math.max(24, w * 0.11);
+    ctx.beginPath();
+    ctx.moveTo(from.x, from.y);
+    ctx.lineTo(to.x, to.y);
+    ctx.stroke();
+  }
+
+  /* sample the alpha channel on a coarse grid - cheap enough to run occasionally */
+  function clearedFraction(){
+    var d = ctx.getImageData(0, 0, cvs.width, cvs.height).data;
+    var clear = 0, total = 0;
+    for (var i = 3; i < d.length; i += 4 * 16){
+      total++;
+      if (d[i] < 40) clear++;
+    }
+    return total ? clear / total : 0;
+  }
+
+  function reveal(){
+    if (revealed) return;
+    revealed = true;
+    card.classList.add('revealed');
+    card.removeAttribute('tabindex');
+    card.removeAttribute('role');
+  }
+
+  function down(e){
+    if (revealed) return;
+    if (!painted) paintFoil();
+    started = true;
+    card.classList.add('scratching');
+    last = pointAt(e);
+    scratch(last, last);
+    if (cvs.setPointerCapture && e.pointerId !== undefined){
+      try { cvs.setPointerCapture(e.pointerId); } catch (err) {}
+    }
+  }
+
+  function move(e){
+    if (revealed || !started || !last) return;
+    e.preventDefault();
+    var p = pointAt(e);
+    scratch(last, p);
+    last = p;
+    if (++checkTick % 10 === 0 && clearedFraction() > 0.45) reveal();
+  }
+
+  function up(){
+    if (revealed || !started) return;
+    started = false;
+    last = null;
+    if (clearedFraction() > 0.4) reveal();
+  }
+
+  cvs.addEventListener('pointerdown', down);
+  cvs.addEventListener('pointermove', move, {passive:false});
+  window.addEventListener('pointerup', up);
+  window.addEventListener('pointercancel', up);
+
+  /* keyboard route, and a fallback for anyone who cannot drag */
+  card.addEventListener('keydown', function(e){
+    if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar'){
+      e.preventDefault();
+      reveal();
+    }
+  });
+
+  /* only repaint on resize while the foil is still untouched */
+  var rt;
+  window.addEventListener('resize', function(){
+    if (revealed) return;
+    clearTimeout(rt);
+    rt = setTimeout(function(){ if (!started && checkTick === 0) paintFoil(); }, 200);
+  });
+
+  /* paint once the card has a size (it sits below the fold at load) */
+  if (window.requestAnimationFrame) requestAnimationFrame(paintFoil);
+  else paintFoil();
+  window.addEventListener('load', function(){ if (!painted) paintFoil(); });
 })();
 </script>
 </body>
