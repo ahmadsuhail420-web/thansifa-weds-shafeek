@@ -33,11 +33,9 @@
     /* mono.webp carries ~7.5% transparent padding on top, so the art clears the
        eyebrow even once the boxes touch; capped so wide screens don't overshoot */
     --mono-lift:clamp(6px,2.4vw,13px);
-    /* nikah.webp's card is not square to the frame: fitting its four panel
-       edges gives top -5.2deg, left -6.1deg, bottom -8.8deg, right -9.0deg
-       (the lower/right pair are skewed by the roses overlapping them), so the
-       text is set to the cleaner top/left reading */
-    --nikah-tilt:-6deg;
+    /* nikah.webp's card is not square to the frame; its clean left edge
+       measures -5.3deg, so the text is set to match */
+    --nikah-tilt:-5.4deg;
   }
 
   *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
@@ -507,9 +505,11 @@
   }
 
   /* ===== NIKAH DETAILS (set inside nikah.webp's empty card) =====
-     The artwork is 1200x1200 and its blank burgundy panel measures
-     x 264..680, y 428..916 - i.e. inset 22% / 43.3% / 35.7% / 23.7%.
-     Those four numbers are where the text box below comes from. */
+     Insets measured off the artwork itself: the largest rectangle that fits
+     inside its flat burgundy panel is 22% / 39.8% / 41% / 13.2% - chosen for
+     width over raw area, since the wording wraps badly in a narrow box, then
+     nudged up to 35% / 19.2% so the block sits centred in the visible card.
+     Re-measure these if the artwork is ever replaced. */
   .nikah-art{
     position:relative;
     width:calc(100% + 48px);   /* breaks out of the section's side padding */
@@ -527,9 +527,9 @@
   .nikah-panel{
     position:absolute;
     left:22%;
-    right:43.3%;
-    top:35.7%;
-    bottom:23.7%;
+    right:39.8%;
+    top:35%;
+    bottom:19.2%;
     display:flex;
     flex-direction:column;
     align-items:center;
