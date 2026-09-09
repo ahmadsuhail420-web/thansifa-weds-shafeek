@@ -25,7 +25,6 @@
     --arabic:'Amiri', 'Traditional Arabic', serif;
     --ease:cubic-bezier(.22,.61,.36,1);
     --hero-header-top:4.5vh;   /* masthead offset from the top of the hero */
-    --hero-media-h:84%;        /* hero video height, anchored to the bottom */
     /* seal spans the full width; 1230x792 art means height = 64.4vw, so half is: */
     --seal-overhang:32.2vw;
     --seal-lift:6vh;           /* how far the flower band rides above the seam */
@@ -174,19 +173,7 @@
   }
   #hero.reveal{opacity:1;visibility:visible;}
 
-  /* --- backdrop: fills the hero, sits beneath the video --- */
-  .hero-bg{
-    position:absolute;
-    inset:0;
-    width:100%;
-    height:100%;
-    object-fit:cover;
-    object-position:center top;
-    max-width:none;
-    z-index:0;
-  }
-
-  /* --- masthead, overlaid on the backdrop above the video --- */
+  /* --- masthead, overlaid on the video --- */
   .hero-header{
     position:absolute;
     left:0;right:0;top:0;
@@ -237,12 +224,10 @@
     margin:0 .22em;
   }
 
-  /* --- video sits at the bottom, slightly short of full height --- */
+  /* --- video is the hero's full background --- */
   .hero-media{
     position:absolute;
-    left:0;right:0;
-    top:auto;bottom:0;
-    height:var(--hero-media-h);
+    inset:0;
     overflow:hidden;
   }
   .hero-media video{
@@ -834,8 +819,6 @@
 
   <!-- ===================== HERO SCENE ===================== -->
   <div id="hero">
-    <img class="hero-bg" src="image/h-bg.webp" alt="" />
-
     <header class="hero-header">
       <p class="hero-eyebrow">The Wedding Of</p>
       <div class="hero-mono-slot">
@@ -845,12 +828,8 @@
     </header>
 
     <div class="hero-media">
-      <!-- the webm carries a real alpha channel, so the couple sits on the
-           backdrop with no white block; the mp4 is the opaque fallback -->
-      <video id="hero-video" playsinline muted loop preload="auto" webkit-playsinline>
-        <source src="video/h-bg.webm" type="video/webm" />
-        <source src="video/h-bg.mp4" type="video/mp4" />
-      </video>
+      <video id="hero-video" playsinline muted loop preload="auto" webkit-playsinline
+             src="video/h-bg.mp4"></video>
     </div>
 
     <div class="scroll-cue" aria-hidden="true">
