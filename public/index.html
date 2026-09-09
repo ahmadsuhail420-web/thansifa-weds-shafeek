@@ -535,12 +535,14 @@
     align-items:center;
     justify-content:center;
     text-align:center;
-    gap:clamp(2px,0.8vw,9px);
-    /* the inset box hugs the flat colour, so pad in off the lace edge */
-    padding:1% 5%;
+    gap:clamp(4px,1.5vw,13px);
+    /* the inset box hugs the flat colour, so pad in off the lace edge.
+       Not %: percentage padding resolves against the containing block's
+       width (the whole artwork), which ate a third of this narrow box. */
+    padding:clamp(3px,0.9vw,10px) clamp(4px,1.5vw,15px);
     transform:rotate(var(--nikah-tilt));   /* sit square to the tilted card */
   }
-  .nikah-row{ display:flex; flex-direction:column; align-items:center; gap:.15em; }
+  .nikah-row{ display:flex; flex-direction:column; align-items:center; gap:.2em; }
   .nikah-term{
     font-family:var(--sans);
     font-weight:400;
@@ -555,8 +557,8 @@
   .nikah-detail{
     font-family:var(--serif);
     font-weight:500;
-    font-size:clamp(10.5px,3.4vw,30px);
-    line-height:1.12;
+    font-size:clamp(11.5px,3.85vw,32px);
+    line-height:1.14;
     text-wrap:balance;         /* avoids a lone '2026' on its own line */
     color:var(--ivory);
   }
