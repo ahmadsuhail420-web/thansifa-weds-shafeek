@@ -296,8 +296,21 @@
     text-align:center;
     color:var(--burgundy);
     padding:calc((var(--seal-overhang) - var(--seal-lift)) * var(--art-tuck) - 2vh) 11% 5%;
-    gap:clamp(3px,1.1vw,9px);
+    gap:0;                     /* spacing is set per group below */
   }
+  .invite-group{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+  }
+  .invite-group > * + *{ margin-top:clamp(2px,.7vw,6px); }   /* tight within a group */
+
+  /* small gap after the Bismillah, clear gaps around the invitation sentence */
+  .invite-hosts-group{ margin-top:clamp(7px,2.2vw,16px); }
+  .invite-request{ margin-top:clamp(16px,6.4vw,44px); }
+  .invite-couple{ margin-top:clamp(16px,6.4vw,44px); }
+  .invite-couple .invite-amp{ margin-top:clamp(5px,1.8vw,12px); }
+  .invite-couple .invite-name{ margin-top:clamp(4px,1.4vw,10px); }
   .invite-bismillah{
     font-family:var(--arabic);
     font-weight:400;
@@ -330,7 +343,6 @@
     font-weight:500;
     font-size:clamp(20px,6.6vw,38px);
     line-height:1.15;
-    margin-top:clamp(2px,.8vw,7px);
   }
   .invite-amp{
     font-family:var(--serif);
@@ -458,21 +470,25 @@
       <img class="after-hero-art" src="image/2.webp" alt="" />
 
       <div class="invite-text">
-        <p class="invite-bismillah" lang="ar">&#1576;&#1587;&#1605; &#1575;&#1604;&#1604;&#1607; &#1575;&#1604;&#1585;&#1581;&#1605;&#1606; &#1575;&#1604;&#1585;&#1581;&#1610;&#1605;</p>
-        <p class="invite-sub">In the name of Allah<br />the most beneficient the most merciful</p>
+        <div class="invite-group">
+          <p class="invite-bismillah" lang="ar">&#1576;&#1587;&#1605; &#1575;&#1604;&#1604;&#1607; &#1575;&#1604;&#1585;&#1581;&#1605;&#1606; &#1575;&#1604;&#1585;&#1581;&#1610;&#1605;</p>
+          <p class="invite-sub">In the name of Allah<br />the most beneficient the most merciful</p>
+        </div>
 
-        <p class="invite-hosts">Mr.Isubu &amp; Mrs.Jameela</p>
-        <p class="invite-note">(Pattur House, Kokkada)</p>
+        <div class="invite-group invite-hosts-group">
+          <p class="invite-hosts">Mr.Isubu &amp; Mrs.Jameela</p>
+          <p class="invite-note">(Pattur House, Kokkada)</p>
+        </div>
 
-        <p class="invite-sub">We cordially invite your esteemed presence with family<br />for the wedding of our daughter</p>
+        <p class="invite-sub invite-request">We cordially invite your esteemed presence with family<br />for the wedding of our daughter</p>
 
-        <h2 class="invite-name">Fathimath Thanseefa</h2>
-        <p class="invite-note">(Grand D/O Abdullah &amp; Late Aboobakkar)</p>
-
-        <p class="invite-amp">&amp;</p>
-
-        <h2 class="invite-name">Ahammad Shakeer M</h2>
-        <p class="invite-note">(S/O Mr.Hassainar &amp; Mrs.Ayisha<br />Ummikala house Bellare)</p>
+        <div class="invite-group invite-couple">
+          <h2 class="invite-name">Fathimath Thanseefa</h2>
+          <p class="invite-note">(Grand D/O Abdullah &amp; Late Aboobakkar)</p>
+          <p class="invite-amp">&amp;</p>
+          <h2 class="invite-name">Ahammad Shakeer M</h2>
+          <p class="invite-note">(S/O Mr.Hassainar &amp; Mrs.Ayisha<br />Ummikala house Bellare)</p>
+        </div>
       </div>
     </div>
   </section>
