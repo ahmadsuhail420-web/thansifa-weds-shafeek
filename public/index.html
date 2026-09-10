@@ -178,6 +178,51 @@
     50%{transform:scale(1.35);opacity:1}
   }
 
+  /* ===== FALLING PETALS =====
+     A fixed ambient layer. z-index 3 puts it above every section (1 and 2)
+     but below the intro overlay (20) and the autoplay button (40), so the
+     petals drift over the page without ever covering the welcome scene.
+     Two palettes on purpose: the burgundy ones read against the ivory hero,
+     the rose ones against the burgundy section below - either alone would
+     vanish over half the page. Only transform and opacity are animated. */
+  .petals{
+    position:fixed;
+    inset:0;
+    z-index:3;
+    pointer-events:none;
+    overflow:hidden;              /* a swaying petal can never widen the page */
+    opacity:0;
+    transition:opacity 2.4s var(--ease) .8s;
+  }
+  body.unlocked .petals{opacity:1;}   /* fade in with the hero, not over the intro */
+  .petal{
+    position:absolute;
+    top:-10vh;
+    left:var(--x);
+    width:calc(var(--s) * 14px);
+    height:calc(var(--s) * 14px);
+    background:linear-gradient(140deg, var(--p1) 0%, var(--p2) 100%);
+    /* one round lobe and one point: a petal rather than a leaf or a blob */
+    border-radius:100% 0 100% 0;
+    opacity:0;
+    animation:petal-fall var(--d) linear var(--delay) infinite;
+    will-change:transform, opacity;
+  }
+  .petal--burgundy{--p1:#7b2233;--p2:#a8384c;}
+  .petal--rose    {--p1:#c96b7a;--p2:#e6b3bb;}
+  .petal--deep    {--p1:#5e1826;--p2:#8d2b3d;}
+  @keyframes petal-fall{
+    0%   {transform:translate3d(0,0,0) rotate(0deg);            opacity:0;}
+    10%  {                                                      opacity:.5;}
+    50%  {transform:translate3d(var(--sway),60vh,0) rotate(calc(var(--spin) * .5));}
+    90%  {                                                      opacity:.42;}
+    100% {transform:translate3d(0,125vh,0) rotate(var(--spin)); opacity:0;}
+  }
+  /* stillness for anyone who asks for it */
+  @media (prefers-reduced-motion: reduce){
+    .petals{display:none;}
+  }
+
   /* ===== HERO SCENE ===== */
   #hero{
     position:relative;
@@ -945,6 +990,28 @@
         <span class="tap-ring" aria-hidden="true"></span>
       </div>
     </div>
+  </div>
+
+  <!-- ambient falling petals; decorative only -->
+  <div class="petals" aria-hidden="true">
+      <i class="petal petal--burgundy" style="--x:1.0%;--s:1.13;--d:25.4s;--delay:-5.0s;--sway:-40px;--spin:-390deg"></i>
+      <i class="petal petal--rose" style="--x:4.8%;--s:0.89;--d:23.6s;--delay:-4.3s;--sway:38px;--spin:-330deg"></i>
+      <i class="petal petal--deep" style="--x:12.5%;--s:1.15;--d:21.3s;--delay:-13.9s;--sway:10px;--spin:-330deg"></i>
+      <i class="petal petal--rose" style="--x:17.9%;--s:1.16;--d:21.5s;--delay:-21.3s;--sway:-45px;--spin:-330deg"></i>
+      <i class="petal petal--burgundy" style="--x:21.1%;--s:1.07;--d:17.4s;--delay:-11.3s;--sway:19px;--spin:-390deg"></i>
+      <i class="petal petal--rose" style="--x:26.2%;--s:1.33;--d:22.8s;--delay:-20.8s;--sway:27px;--spin:300deg"></i>
+      <i class="petal petal--burgundy" style="--x:34.5%;--s:1.01;--d:15.2s;--delay:-10.8s;--sway:-22px;--spin:300deg"></i>
+      <i class="petal petal--rose" style="--x:37.4%;--s:1.33;--d:13.2s;--delay:-10.3s;--sway:-14px;--spin:-390deg"></i>
+      <i class="petal petal--deep" style="--x:44.8%;--s:0.67;--d:26.0s;--delay:-22.7s;--sway:-3px;--spin:300deg"></i>
+      <i class="petal petal--rose" style="--x:49.4%;--s:1.19;--d:15.3s;--delay:-5.5s;--sway:2px;--spin:-390deg"></i>
+      <i class="petal petal--burgundy" style="--x:54.5%;--s:0.77;--d:22.6s;--delay:-12.6s;--sway:-15px;--spin:300deg"></i>
+      <i class="petal petal--rose" style="--x:60.6%;--s:1.08;--d:16.9s;--delay:-13.5s;--sway:18px;--spin:300deg"></i>
+      <i class="petal petal--burgundy" style="--x:65.8%;--s:0.96;--d:19.7s;--delay:-11.5s;--sway:37px;--spin:360deg"></i>
+      <i class="petal petal--rose" style="--x:73.9%;--s:0.97;--d:20.1s;--delay:-19.5s;--sway:-35px;--spin:-390deg"></i>
+      <i class="petal petal--deep" style="--x:75.8%;--s:1.2;--d:16.9s;--delay:-10.4s;--sway:-37px;--spin:-390deg"></i>
+      <i class="petal petal--rose" style="--x:83.0%;--s:1.16;--d:22.6s;--delay:-4.1s;--sway:42px;--spin:420deg"></i>
+      <i class="petal petal--burgundy" style="--x:90.0%;--s:1.07;--d:15.9s;--delay:-3.0s;--sway:31px;--spin:420deg"></i>
+      <i class="petal petal--rose" style="--x:95.9%;--s:1.22;--d:13.8s;--delay:-13.6s;--sway:-42px;--spin:300deg"></i>
   </div>
 
   <!-- ===================== HERO SCENE ===================== -->
