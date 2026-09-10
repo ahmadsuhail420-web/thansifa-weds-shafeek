@@ -474,8 +474,29 @@
   .date-value{
     font-family:var(--serif);
     font-weight:500;
-    font-size:clamp(26px,8.4vw,44px);
-    line-height:1.1;
+    /* "27 | SEPTEMBER | 2026" is twice the width of the old "27 Sep 2026",
+       so it is sized to hold one line inside the card's 8% padding */
+    font-size:clamp(15px,5vw,27px);
+    line-height:1.15;
+    /* tracking kept modest so the line still clears the padding on a 360px
+       phone in a wide fallback face, not just in Cormorant */
+    letter-spacing:.04em;
+    text-transform:uppercase;
+    white-space:nowrap;
+  }
+  .date-sep{
+    color:var(--gold);
+    font-weight:400;
+    opacity:.7;
+    margin:0 .42em;
+  }
+  .date-hijri{
+    font-family:var(--serif);
+    font-style:italic;
+    font-size:clamp(11px,3.2vw,16px);
+    line-height:1.2;
+    opacity:.74;
+    letter-spacing:.015em;
   }
 
   .scratch-foil{
@@ -1017,8 +1038,11 @@
     <div class="scratch" id="scratch" role="button" tabindex="0"
          aria-label="Scratch to reveal the wedding date">
       <div class="scratch-face">
-        <p class="date-label">Date</p>
-        <p class="date-value"><time datetime="2026-09-27">27 Sep 2026</time></p>
+        <p class="date-label">Sunday</p>
+        <p class="date-value">
+          <time datetime="2026-09-27">27<span class="date-sep" aria-hidden="true">|</span>September<span class="date-sep" aria-hidden="true">|</span>2026</time>
+        </p>
+        <p class="date-hijri">(16 Rabi'al-Akhir 1448)</p>
       </div>
       <canvas class="scratch-foil" id="scratchFoil" aria-hidden="true"></canvas>
     </div>
