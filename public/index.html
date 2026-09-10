@@ -25,10 +25,19 @@
     --arabic:'Amiri', 'Traditional Arabic', serif;
     --display:'Playfair Display', 'Cormorant Garamond', Georgia, serif;
     --ease:cubic-bezier(.22,.61,.36,1);
+    /* The hero is sized in svh, so everything measured against it is too:
+       on iOS, vh resolves against the *large* viewport (browser chrome
+       hidden) and would drift a few px from the hero's own edges. Each of
+       these keeps its vh line first as the fallback for browsers with no
+       svh support. */
     --hero-header-top:1.6vh;   /* masthead offset from the top of the hero */
+    --hero-header-top:1.6svh;
     /* seal spans the full width; 1230x792 art means height = 64.4vw, so half is: */
     --seal-overhang:32.2vw;
-    --seal-lift:3.4vh;         /* how far the flower band rides above the seam */
+    /* 0 so the band is centred exactly on the hero's bottom edge: its upper
+       half sits in the hero, its lower half in the section below. Any lift
+       here rides the band up into the hero and eats that much more of it. */
+    --seal-lift:0px;
     --art-tuck:.8;            /* fraction of the band's overhang that 2.webp slides under */
     --bismillah-lift:1vw;    /* the opening rides up on its own, via transform */
     --mono-w:clamp(132px,44vw,208px);   /* monogram width */
@@ -48,6 +57,13 @@
     font-family:var(--sans);
     background:var(--ink);
     color:var(--ivory);
+    /* Locked for the intro with overflow alone. Do NOT make this
+       position:fixed: #welcome is itself position:fixed, and nesting one
+       inside the other makes iOS Safari anchor the overlay's top to the
+       visible content while resolving its bottom against a viewport
+       measured from the screen top, so the overlay came up short by exactly
+       the height of the browser chrome. The scroll offset is pinned in JS
+       instead - see the scroll handler by the welcome flow. */
     overflow:hidden;
     overscroll-behavior:none;
     -webkit-font-smoothing:antialiased;
@@ -108,6 +124,7 @@
     align-items:center;
     justify-content:flex-end;
     padding:0 24px calc(12vh + env(safe-area-inset-bottom));
+    padding:0 24px calc(12svh + env(safe-area-inset-bottom));
     text-align:center;
     opacity:0;
     transition:opacity 1.1s var(--ease);
@@ -262,7 +279,11 @@
     position:absolute;
     inset:0;
     width:100%;height:100%;
-    object-fit:cover;
+    /* contain, so the whole 720x1280 frame fits the screen: cover was
+       slicing the candle stands off both edges on tall phones and cropping
+       ~65% of the frame on desktop. The letterbox is invisible - the video's
+       own ground is #f6f1ec, the same colour as the hero behind it. */
+    object-fit:contain;
     z-index:1;
   }
   /* full-width band centred on the seam between the hero and the section below */
@@ -291,13 +312,15 @@
     /* white stays as the fallback colour under the artwork */
     background:#ffffff url("image/1.webp") center top / cover no-repeat;
     padding:calc(var(--seal-overhang) - var(--seal-lift) + 5vh) 24px 4vh;
+    padding:calc(var(--seal-overhang) - var(--seal-lift) + 5svh) 24px 4svh;
   }
-  /* the negative top margin cancels the section's 5vh gap and pulls the card
+  /* the negative top margin cancels the section's 5svh gap and pulls the card
      up under the flower band, so its top edge is covered by mbl.webp */
   .invite{
     position:relative;
     width:calc(100% + 48px);   /* breaks out of the section's 24px side padding */
     margin:calc(-5vh - (var(--seal-overhang) - var(--seal-lift)) * var(--art-tuck)) -24px 0;
+    margin:calc(-5svh - (var(--seal-overhang) - var(--seal-lift)) * var(--art-tuck)) -24px 0;
   }
   .after-hero-art{
     display:block;
@@ -317,6 +340,7 @@
     text-align:center;
     color:var(--burgundy);
     padding:calc((var(--seal-overhang) - var(--seal-lift)) * var(--art-tuck) - 2vh) 11% 5%;
+    padding:calc((var(--seal-overhang) - var(--seal-lift)) * var(--art-tuck) - 2svh) 11% 5%;
     gap:0;                     /* spacing is set per group below */
   }
   .invite-group{
@@ -836,6 +860,7 @@
     position:absolute;
     left:50%;
     bottom:calc(2.5vh + env(safe-area-inset-bottom));
+    bottom:calc(2.5svh + env(safe-area-inset-bottom));
     transform:translateX(-50%);
     z-index:7;                 /* above the flower band */
     display:flex;flex-direction:column;align-items:center;gap:.7rem;
@@ -873,6 +898,7 @@
   .autoplay-fallback{
     position:fixed;
     left:50%;bottom:calc(6vh + env(safe-area-inset-bottom));
+    bottom:calc(6svh + env(safe-area-inset-bottom));
     transform:translateX(-50%);
     z-index:40;
     display:none;
@@ -1131,6 +1157,32 @@
   var revealed  = false;   // hero already revealed
   var promptTimer = null;  // delayed reveal of the tap cue
 
+  /* body{overflow:hidden} stops a gesture from scrolling, but it does not
+     pin the offset: the browser restores the previous scroll position across
+     a reload while still locked, and iOS Safari scrolls the document under a
+     fixed overlay regardless. Either way the hero was revealed already part
+     way down the page, so own the position outright. */
+  if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+  function toTop(){
+    window.scrollTo(0, 0);
+    /* whichever element the engine treats as the scroller */
+    if (document.documentElement) document.documentElement.scrollTop = 0;
+    if (document.body) document.body.scrollTop = 0;
+  }
+  function blockScroll(e){ e.preventDefault(); }
+  /* Pin the offset for the whole intro. overflow:hidden stops a gesture but
+     not a restored offset, and on iOS not even the gesture, so snap back on
+     any scroll that does get through until the hero is revealed. Purely
+     behavioural: it changes no boxes, unlike locking the body itself. */
+  function pin(){ if (!revealed) toTop(); }
+  toTop();
+  welcome.addEventListener('touchmove', blockScroll, {passive:false});
+  window.addEventListener('scroll', pin, {passive:true});
+  window.addEventListener('resize', pin);
+  window.addEventListener('load', pin);
+  /* a back/forward restore from the bfcache skips 'load' entirely */
+  window.addEventListener('pageshow', pin);
+
   // Belt-and-braces for reliable mobile inline playback
   [welcomeVideo, heroVideo].forEach(function(v){
     v.muted = true;
@@ -1148,7 +1200,15 @@
 
     welcome.classList.add('gone');
     hero.classList.add('reveal');
+
+    /* back to the top before the page can be seen, then again after the
+       hero has laid out, so the guest always starts at the masthead */
+    welcome.removeEventListener('touchmove', blockScroll);
+    window.removeEventListener('scroll', pin);
+    window.removeEventListener('resize', pin);
+    toTop();
     document.body.classList.add('unlocked');
+    requestAnimationFrame(toTop);
 
     /* any Play button raised for the welcome video is meaningless once that
        scene is over, so clear it before deciding about the hero video */
