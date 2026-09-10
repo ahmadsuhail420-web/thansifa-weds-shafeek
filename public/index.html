@@ -25,10 +25,17 @@
     --arabic:'Amiri', 'Traditional Arabic', serif;
     --display:'Playfair Display', 'Cormorant Garamond', Georgia, serif;
     --ease:cubic-bezier(.22,.61,.36,1);
+    /* The hero is sized in svh, so everything measured against it is too:
+       on iOS, vh resolves against the *large* viewport (browser chrome
+       hidden) and would drift a few px from the hero's own edges. Each of
+       these keeps its vh line first as the fallback for browsers with no
+       svh support. */
     --hero-header-top:1.6vh;   /* masthead offset from the top of the hero */
+    --hero-header-top:1.6svh;
     /* seal spans the full width; 1230x792 art means height = 64.4vw, so half is: */
     --seal-overhang:32.2vw;
     --seal-lift:3.4vh;         /* how far the flower band rides above the seam */
+    --seal-lift:3.4svh;
     --art-tuck:.8;            /* fraction of the band's overhang that 2.webp slides under */
     --bismillah-lift:1vw;    /* the opening rides up on its own, via transform */
     --mono-w:clamp(132px,44vw,208px);   /* monogram width */
@@ -115,6 +122,7 @@
     align-items:center;
     justify-content:flex-end;
     padding:0 24px calc(12vh + env(safe-area-inset-bottom));
+    padding:0 24px calc(12svh + env(safe-area-inset-bottom));
     text-align:center;
     opacity:0;
     transition:opacity 1.1s var(--ease);
@@ -298,13 +306,15 @@
     /* white stays as the fallback colour under the artwork */
     background:#ffffff url("image/1.webp") center top / cover no-repeat;
     padding:calc(var(--seal-overhang) - var(--seal-lift) + 5vh) 24px 4vh;
+    padding:calc(var(--seal-overhang) - var(--seal-lift) + 5svh) 24px 4svh;
   }
-  /* the negative top margin cancels the section's 5vh gap and pulls the card
+  /* the negative top margin cancels the section's 5svh gap and pulls the card
      up under the flower band, so its top edge is covered by mbl.webp */
   .invite{
     position:relative;
     width:calc(100% + 48px);   /* breaks out of the section's 24px side padding */
     margin:calc(-5vh - (var(--seal-overhang) - var(--seal-lift)) * var(--art-tuck)) -24px 0;
+    margin:calc(-5svh - (var(--seal-overhang) - var(--seal-lift)) * var(--art-tuck)) -24px 0;
   }
   .after-hero-art{
     display:block;
@@ -324,6 +334,7 @@
     text-align:center;
     color:var(--burgundy);
     padding:calc((var(--seal-overhang) - var(--seal-lift)) * var(--art-tuck) - 2vh) 11% 5%;
+    padding:calc((var(--seal-overhang) - var(--seal-lift)) * var(--art-tuck) - 2svh) 11% 5%;
     gap:0;                     /* spacing is set per group below */
   }
   .invite-group{
@@ -843,6 +854,7 @@
     position:absolute;
     left:50%;
     bottom:calc(2.5vh + env(safe-area-inset-bottom));
+    bottom:calc(2.5svh + env(safe-area-inset-bottom));
     transform:translateX(-50%);
     z-index:7;                 /* above the flower band */
     display:flex;flex-direction:column;align-items:center;gap:.7rem;
@@ -880,6 +892,7 @@
   .autoplay-fallback{
     position:fixed;
     left:50%;bottom:calc(6vh + env(safe-area-inset-bottom));
+    bottom:calc(6svh + env(safe-area-inset-bottom));
     transform:translateX(-50%);
     z-index:40;
     display:none;
