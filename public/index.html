@@ -38,7 +38,8 @@
        half sits in the hero, its lower half in the section below. Any lift
        here rides the band up into the hero and eats that much more of it. */
     --seal-lift:0px;
-    --art-tuck:.8;            /* fraction of the band's overhang that 2.webp slides under */
+    --art-tuck:.64;           /* fraction of the band's overhang that 2.webp slides under;
+                                 lower drops the card further down the section */
     --bismillah-lift:1vw;    /* the opening rides up on its own, via transform */
     --mono-w:clamp(132px,44vw,208px);   /* monogram width */
     /* mono.webp is 7.5% transparent at the top and 6.5% at the bottom; those
@@ -311,8 +312,11 @@
        2.webp plus the small gap below it */
     /* white stays as the fallback colour under the artwork */
     background:#ffffff url("image/1.webp") center top / cover no-repeat;
-    padding:calc(var(--seal-overhang) - var(--seal-lift) + 5vh) 24px 4vh;
-    padding:calc(var(--seal-overhang) - var(--seal-lift) + 5svh) 24px 4svh;
+    /* the bottom padding sets how much of 1.webp shows below the card. The
+       art is 1000x1777 and renders ~714px tall at cover on a 402px-wide
+       phone, so there is plenty of it left to reveal before it would scale */
+    padding:calc(var(--seal-overhang) - var(--seal-lift) + 5vh) 24px 10vh;
+    padding:calc(var(--seal-overhang) - var(--seal-lift) + 5svh) 24px 10svh;
   }
   /* the negative top margin cancels the section's 5svh gap and pulls the card
      up under the flower band, so its top edge is covered by mbl.webp */
@@ -437,8 +441,29 @@
     width:min(84%,400px);
     aspect-ratio:5 / 3;
     overflow:hidden;
-    background:#ffffff;
-    border:1px solid rgba(123,34,51,.16);
+    /* the cartouche outline. clipPathUnits are objectBoundingBox, so the one
+       path scales to whatever size the card takes, and it clips the foil
+       canvas along with the face - no radius or clipping on the canvas. A
+       border cannot be used with clip-path (it would be cut away), so the
+       gold edge is stroked by .scratch-edge instead. */
+    clip-path:url(#cartouche);
+    background:#7b2233 url("image/1.webp") center / cover no-repeat;
+  }
+  /* the same path again, stroked, sitting above the foil. non-scaling-stroke
+     keeps the hairline even width despite preserveAspectRatio="none". */
+  .scratch-edge{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    z-index:2;
+    pointer-events:none;
+  }
+  .scratch-edge path{
+    fill:none;
+    stroke:rgba(201,163,91,.55);
+    stroke-width:2.5;
+    vector-effect:non-scaling-stroke;
   }
   /* the date is real text underneath, so it is readable even without scratching */
   .scratch-face{
@@ -449,8 +474,12 @@
     align-items:center;
     justify-content:center;
     gap:clamp(6px,2vw,13px);
-    color:var(--burgundy);
-    padding:8%;
+    /* 1.webp's visible band averages rgb(73,21,20), so the old burgundy text
+       sat at 1.51:1 against it. Ivory-light is 14.4:1. */
+    color:var(--ivory-light);
+    /* wider than a rectangle would need: the cartouche cuts the corners away
+       and dips at the top and bottom centre */
+    padding:9% 15%;
   }
   .date-label{
     font-family:var(--sans);
@@ -459,13 +488,34 @@
     text-transform:uppercase;
     font-size:clamp(8px,2.2vw,11px);
     padding-left:.34em;
-    opacity:.65;
+    opacity:.78;               /* light on dark now, so it can carry more */
   }
   .date-value{
     font-family:var(--serif);
     font-weight:500;
-    font-size:clamp(26px,8.4vw,44px);
-    line-height:1.1;
+    /* "27 | SEPTEMBER | 2026" is twice the width of the old "27 Sep 2026",
+       so it is sized to hold one line inside the card's 8% padding */
+    font-size:clamp(15px,5vw,27px);
+    line-height:1.15;
+    /* tracking kept modest so the line still clears the padding on a 360px
+       phone in a wide fallback face, not just in Cormorant */
+    letter-spacing:.04em;
+    text-transform:uppercase;
+    white-space:nowrap;
+  }
+  .date-sep{
+    color:var(--gold);
+    font-weight:400;
+    opacity:.7;
+    margin:0 .42em;
+  }
+  .date-hijri{
+    font-family:var(--serif);
+    font-style:italic;
+    font-size:clamp(11px,3.2vw,16px);
+    line-height:1.2;
+    opacity:.74;
+    letter-spacing:.015em;
   }
 
   .scratch-foil{
@@ -1007,11 +1057,27 @@
     <div class="scratch" id="scratch" role="button" tabindex="0"
          aria-label="Scratch to reveal the wedding date">
       <div class="scratch-face">
-        <p class="date-label">Date</p>
-        <p class="date-value"><time datetime="2026-09-27">27 Sep 2026</time></p>
+        <p class="date-label">Sunday</p>
+        <p class="date-value">
+          <time datetime="2026-09-27">27<span class="date-sep" aria-hidden="true">|</span>September<span class="date-sep" aria-hidden="true">|</span>2026</time>
+        </p>
+        <p class="date-hijri">(16 Rabi'al-Akhir 1448)</p>
       </div>
       <canvas class="scratch-foil" id="scratchFoil" aria-hidden="true"></canvas>
+      <svg class="scratch-edge" viewBox="0 0 1 1" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+        <g transform="translate(.008 .008) scale(.984)">
+        <path d="M .5 .045 C .44 .005 .35 0 .285 .012 C .2 .03 .115 .075 .075 .145 C .046 .208 .086 .3 .072 .372 C .058 .432 .024 .456 .016 .5 C .024 .544 .058 .568 .072 .628 C .1 .7 .045 .795 .075 .855 C .115 .925 .2 .97 .285 .988 C .35 1 .44 .995 .5 .955 C .56 .995 .65 1 .715 .988 C .8 .97 .885 .925 .925 .855 C .954 .792 .914 .7 .928 .628 C .942 .568 .976 .544 .984 .5 C .976 .456 .942 .432 .928 .372 C .9 .3 .955 .205 .925 .145 C .885 .075 .8 .03 .715 .012 C .65 0 .56 .005 .5 .045 Z"/>
+        </g>
+      </svg>
     </div>
+
+    <svg width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute">
+      <defs>
+        <clipPath id="cartouche" clipPathUnits="objectBoundingBox">
+          <path d="M .5 .045 C .44 .005 .35 0 .285 .012 C .2 .03 .115 .075 .075 .145 C .046 .208 .086 .3 .072 .372 C .058 .432 .024 .456 .016 .5 C .024 .544 .058 .568 .072 .628 C .1 .7 .045 .795 .075 .855 C .115 .925 .2 .97 .285 .988 C .35 1 .44 .995 .5 .955 C .56 .995 .65 1 .715 .988 C .8 .97 .885 .925 .925 .855 C .954 .792 .914 .7 .928 .628 C .942 .568 .976 .544 .984 .5 C .976 .456 .942 .432 .928 .372 C .9 .3 .955 .205 .925 .145 C .885 .075 .8 .03 .715 .012 C .65 0 .56 .005 .5 .045 Z"/>
+        </clipPath>
+      </defs>
+    </svg>
   </section>
 
   <section class="sec sec--white" id="countdown">
