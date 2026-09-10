@@ -1142,6 +1142,7 @@
   </button>
 
 <script>
+
 (function(){
   "use strict";
 
@@ -1153,76 +1154,103 @@
   var heroVideo     = document.getElementById('hero-video');
   var fallbackBtn   = document.getElementById('autoplayFallback');
 
-  var started   = false;   // welcome interaction consumed
-  var revealed  = false;   // hero already revealed
-  var promptTimer = null;  // delayed reveal of the tap cue
+  var started     = false;
+  var revealing   = false;
+  var revealed    = false;
+  var promptTimer = null;
 
-  /* body{overflow:hidden} stops a gesture from scrolling, but it does not
-     pin the offset: the browser restores the previous scroll position across
-     a reload while still locked, and iOS Safari scrolls the document under a
-     fixed overlay regardless. Either way the hero was revealed already part
-     way down the page, so own the position outright. */
-  if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+  if ('scrollRestoration' in history) {
+    history.scrollRestoration = 'manual';
+  }
+
   function toTop(){
     window.scrollTo(0, 0);
-    /* whichever element the engine treats as the scroller */
-    if (document.documentElement) document.documentElement.scrollTop = 0;
-    if (document.body) document.body.scrollTop = 0;
+
+    if (document.documentElement) {
+      document.documentElement.scrollTop = 0;
+    }
+
+    if (document.body) {
+      document.body.scrollTop = 0;
+    }
   }
-  function blockScroll(e){ e.preventDefault(); }
-  /* Pin the offset for the whole intro. overflow:hidden stops a gesture but
-     not a restored offset, and on iOS not even the gesture, so snap back on
-     any scroll that does get through until the hero is revealed. Purely
-     behavioural: it changes no boxes, unlike locking the body itself. */
-  function pin(){ if (!revealed) toTop(); }
+
+  function blockScroll(e){
+    e.preventDefault();
+  }
+
+  /* Keep iOS Chrome at the document top until its delayed
+     scroll-restoration attempt has finished. */
+  function pin(){
+    if (!revealed) toTop();
+  }
+
   toTop();
-  welcome.addEventListener('touchmove', blockScroll, {passive:false});
-  window.addEventListener('scroll', pin, {passive:true});
+
+  welcome.addEventListener('touchmove', blockScroll, { passive:false });
+  window.addEventListener('scroll', pin, { passive:true });
   window.addEventListener('resize', pin);
   window.addEventListener('load', pin);
-  /* a back/forward restore from the bfcache skips 'load' entirely */
   window.addEventListener('pageshow', pin);
 
-  // Belt-and-braces for reliable mobile inline playback
   [welcomeVideo, heroVideo].forEach(function(v){
     v.muted = true;
-    v.setAttribute('muted','');
+    v.setAttribute('muted', '');
     v.playsInline = true;
   });
 
-  function showFallback(){ fallbackBtn.classList.add('show'); }
-  function hideFallback(){ fallbackBtn.classList.remove('show'); }
+  function showFallback(){
+    fallbackBtn.classList.add('show');
+  }
 
-  // ---- Reveal the hero scene once the welcome video finishes ----
+  function hideFallback(){
+    fallbackBtn.classList.remove('show');
+  }
+
+  function releaseScrollLock(){
+    /* iPhone Chrome may restore its saved scroll position only after
+       body becomes scrollable, so keep pin() active briefly. */
+    requestAnimationFrame(function(){
+      toTop();
+
+      requestAnimationFrame(function(){
+        toTop();
+
+        setTimeout(function(){
+          toTop();
+
+          revealed = true;
+          welcome.removeEventListener('touchmove', blockScroll);
+          window.removeEventListener('scroll', pin);
+          window.removeEventListener('resize', pin);
+        }, 180);
+      });
+    });
+  }
+
   function revealHero(){
-    if (revealed) return;
-    revealed = true;
+    if (revealing || revealed) return;
 
+    revealing = true;
     welcome.classList.add('gone');
     hero.classList.add('reveal');
 
-    /* back to the top before the page can be seen, then again after the
-       hero has laid out, so the guest always starts at the masthead */
-    welcome.removeEventListener('touchmove', blockScroll);
-    window.removeEventListener('scroll', pin);
-    window.removeEventListener('resize', pin);
     toTop();
     document.body.classList.add('unlocked');
-    requestAnimationFrame(toTop);
+    releaseScrollLock();
 
-    /* any Play button raised for the welcome video is meaningless once that
-       scene is over, so clear it before deciding about the hero video */
     hideFallback();
     fallbackBtn.onclick = null;
 
-    /* the hero video may be hidden; playing it would only surface a stray
-       Play button over the page, so skip it entirely when it is not shown */
     var shown = heroVideo.offsetWidth > 0 || heroVideo.offsetHeight > 0;
+
     if (shown){
       var p = heroVideo.play();
+
       if (p && typeof p.catch === 'function'){
         p.catch(function(){
           showFallback();
+
           fallbackBtn.onclick = function(){
             heroVideo.play().then(hideFallback).catch(function(){});
           };
@@ -1231,16 +1259,18 @@
     }
 
     setTimeout(function(){
-      if (welcome && welcome.parentNode) welcome.parentNode.removeChild(welcome);
+      if (welcome && welcome.parentNode) {
+        welcome.parentNode.removeChild(welcome);
+      }
     }, 1600);
   }
 
-  // ---- Start the welcome video on first interaction ----
   function beginStory(){
-    if (started) return;            // prevent replay of the intro interaction
-    started = true;
+    if (started) return;
 
+    started = true;
     clearTimeout(promptTimer);
+
     tapPrompt.classList.remove('show');
     tapPrompt.classList.add('hide');
     poster.classList.add('fade-out');
@@ -1249,9 +1279,11 @@
     removeInteractionListeners();
 
     var p = welcomeVideo.play();
+
     if (p && typeof p.catch === 'function'){
       p.catch(function(){
         showFallback();
+
         fallbackBtn.onclick = function(){
           welcomeVideo.play().then(hideFallback).catch(function(){});
         };
@@ -1259,7 +1291,9 @@
     }
 
     setTimeout(function(){
-      if (poster && poster.parentNode) poster.parentNode.removeChild(poster);
+      if (poster && poster.parentNode) {
+        poster.parentNode.removeChild(poster);
+      }
     }, 1400);
   }
 
@@ -1276,23 +1310,21 @@
     welcome.removeEventListener('keydown', onKey);
   }
 
-  // Surface the cue after 2s, only if the guest hasn't already interacted.
   promptTimer = setTimeout(function(){
     if (!started) tapPrompt.classList.add('show');
   }, 2000);
 
-  welcome.addEventListener('touchstart', beginStory, {passive:true});
+  welcome.addEventListener('touchstart', beginStory, { passive:true });
   welcome.addEventListener('click', beginStory);
   welcome.addEventListener('keydown', onKey);
 
   welcomeVideo.addEventListener('ended', revealHero);
 
-  // Safety net: if the video errors after starting, still progress.
   welcomeVideo.addEventListener('error', function(){
-    if (started && !revealed) revealHero();
+    if (started && !revealing && !revealed) revealHero();
   });
-
 })();
+
 
 /* ---------- countdown ---------- */
 (function(){
