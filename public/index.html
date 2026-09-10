@@ -449,6 +449,16 @@
     clip-path:url(#cartouche);
     background:#7b2233 url("image/1.webp") center / cover no-repeat;
   }
+  /* drifting motes and the celebration burst; above the foil, below the edge */
+  .scratch-spark{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    z-index:1;
+    display:block;
+    pointer-events:none;      /* the foil underneath still takes the drag */
+  }
   /* the same path again, stroked, sitting above the foil. non-scaling-stroke
      keeps the hairline even width despite preserveAspectRatio="none". */
   .scratch-edge{
@@ -1064,6 +1074,7 @@
         <p class="date-hijri">(16 Rabi'al-Akhir 1448)</p>
       </div>
       <canvas class="scratch-foil" id="scratchFoil" aria-hidden="true"></canvas>
+      <canvas class="scratch-spark" id="scratchSpark" aria-hidden="true"></canvas>
       <svg class="scratch-edge" viewBox="0 0 1 1" preserveAspectRatio="none" aria-hidden="true" focusable="false">
         <g transform="translate(.008 .008) scale(.984)">
         <path d="M .5 .045 C .44 .005 .35 0 .285 .012 C .2 .03 .115 .075 .075 .145 C .046 .208 .086 .3 .072 .372 C .058 .432 .024 .456 .016 .5 C .024 .544 .058 .568 .072 .628 C .1 .7 .045 .795 .075 .855 C .115 .925 .2 .97 .285 .988 C .35 1 .44 .995 .5 .955 C .56 .995 .65 1 .715 .988 C .8 .97 .885 .925 .925 .855 C .954 .792 .914 .7 .928 .628 C .942 .568 .976 .544 .984 .5 C .976 .456 .942 .432 .928 .372 C .9 .3 .955 .205 .925 .145 C .885 .075 .8 .03 .715 .012 C .65 0 .56 .005 .5 .045 Z"/>
@@ -1537,13 +1548,9 @@
     ctx.fillStyle = g;
     ctx.fillRect(0, 0, r.width, r.height);
 
-    ctx.fillStyle = 'rgba(255,255,255,.22)';
-    for (var i = 0; i < 180; i++){
-      var x = Math.random() * r.width, y = Math.random() * r.height;
-      ctx.beginPath();
-      ctx.arc(x, y, Math.random() * 1.6 + .3, 0, Math.PI * 2);
-      ctx.fill();
-    }
+    /* the specks that used to be stamped here now drift on .scratch-spark:
+       they cannot live on this canvas, which carries the scratched-away state
+       and so can never be repainted without wiping the guest's progress */
     painted = true;
   }
 
@@ -1581,6 +1588,7 @@
     card.classList.add('revealed');
     card.removeAttribute('tabindex');
     card.removeAttribute('role');
+    card.dispatchEvent(new CustomEvent('scratch:revealed'));
   }
 
   function down(e){
@@ -1636,6 +1644,164 @@
   else paintFoil();
   window.addEventListener('load', function(){ if (!painted) paintFoil(); });
 })();
+
+/* ---------- motes drifting on the card, and a burst when it opens ---------- */
+(function(){
+  "use strict";
+
+  var card = document.getElementById('scratch');
+  var cvs  = document.getElementById('scratchSpark');
+  if (!card || !cvs || !cvs.getContext) return;
+
+  var ctx    = cvs.getContext('2d');
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  var W = 0, H = 0, dpr = 1, t = 0;
+  var motes = [], burst = [], raf = 0, onScreen = true;
+
+  var MOTE  = ['255,246,224', '248,236,206', '255,255,255'];
+  var SPARK = ['#c9a35b', '#d8bd82', '#c96b7a', '#fdfaf4', '#e6b3bb'];
+  var pick  = function(a){ return a[(Math.random() * a.length) | 0]; };
+
+  function size(){
+    var r = card.getBoundingClientRect();
+    if (!r.width || !r.height) return false;
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    W = r.width; H = r.height;
+    cvs.width  = Math.round(W * dpr);
+    cvs.height = Math.round(H * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    return true;
+  }
+
+  /* density rather than a fixed count, so a wide card is not sparse */
+  function seed(){
+    var n = Math.max(16, Math.min(44, Math.round(W * H / 1400)));
+    motes.length = 0;
+    for (var i = 0; i < n; i++){
+      motes.push({
+        x: Math.random() * W,  y: Math.random() * H,
+        r: Math.random() * 1.5 + .35,
+        vx: (Math.random() - .5) * .17,
+        vy: (Math.random() - .5) * .17 - .035,
+        a: Math.random() * .3 + .16,
+        ph: Math.random() * 6.283, tw: Math.random() * .035 + .012,
+        c: pick(MOTE)
+      });
+    }
+  }
+
+  function fire(){
+    if (reduce) return;
+    var s = W / 300;                       // one look at every card size
+    var n = Math.round(105 * Math.min(1.5, Math.max(.7, s)));
+    for (var i = 0; i < n; i++){
+      var ang = Math.random() * 6.283;
+      var sp  = (Math.random() * 7.2 + 2.6) * s;
+      burst.push({
+        x: W / 2 + (Math.random() - .5) * W * .12,
+        y: H / 2 + (Math.random() - .5) * H * .12,
+        vx: Math.cos(ang) * sp,
+        vy: Math.sin(ang) * sp - 1.5 * s,   // biased upward, so it reads as a launch
+        g: .085 * s, life: 0,
+        max: 64 + Math.random() * 54,
+        w: (Math.random() * 3.4 + 2) * s,
+        rot: Math.random() * 6.283,
+        vr: (Math.random() - .5) * .28,
+        round: Math.random() < .45,
+        c: pick(SPARK)
+      });
+    }
+    start();
+  }
+
+  function frame(){
+    raf = 0;
+    t++;
+    ctx.clearRect(0, 0, W, H);
+
+    for (var i = 0; i < motes.length; i++){
+      var m = motes[i];
+      m.x += m.vx; m.y += m.vy;
+      if (m.x < -4) m.x = W + 4; else if (m.x > W + 4) m.x = -4;
+      if (m.y < -4) m.y = H + 4; else if (m.y > H + 4) m.y = -4;
+      var a = m.a * (.55 + .45 * Math.sin(t * m.tw + m.ph));
+      ctx.fillStyle = 'rgba(' + m.c + ',' + a.toFixed(3) + ')';
+      ctx.beginPath();
+      ctx.arc(m.x, m.y, m.r, 0, 6.283);
+      ctx.fill();
+    }
+
+    for (var j = burst.length - 1; j >= 0; j--){
+      var p = burst[j];
+      p.life++;
+      if (p.life > p.max){ burst.splice(j, 1); continue; }
+      p.vy += p.g;
+      p.vx *= .988; p.vy *= .988;
+      p.x += p.vx;  p.y += p.vy;
+      p.rot += p.vr;
+      var k = 1 - p.life / p.max;
+      ctx.globalAlpha = k * k;             // squared, so it lingers bright then goes
+      ctx.fillStyle = p.c;
+      if (p.round){
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.w * .5, 0, 6.283);
+        ctx.fill();
+      } else {
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate(p.rot);
+        ctx.fillRect(-p.w * .5, -p.w * .32, p.w, p.w * .64);
+        ctx.restore();
+      }
+      ctx.globalAlpha = 1;
+    }
+
+    if (onScreen && !reduce) raf = requestAnimationFrame(frame);
+  }
+
+  function start(){
+    if (reduce || raf || !onScreen || !W) return;
+    raf = requestAnimationFrame(frame);
+  }
+  function stop(){
+    if (raf){ cancelAnimationFrame(raf); raf = 0; }
+  }
+
+  function init(){
+    if (!size()) return false;
+    seed();
+    if (reduce) frame();                   // one still frame, no loop
+    else start();
+    return true;
+  }
+
+  /* only animate while the card is actually on screen */
+  if (window.IntersectionObserver){
+    new IntersectionObserver(function(es){
+      onScreen = es[0].isIntersecting;
+      if (onScreen) start(); else stop();
+    }, {rootMargin: '80px'}).observe(card);
+  }
+  document.addEventListener('visibilitychange', function(){
+    if (document.hidden) stop(); else start();
+  });
+
+  card.addEventListener('scratch:revealed', fire);
+
+  var rt;
+  window.addEventListener('resize', function(){
+    clearTimeout(rt);
+    rt = setTimeout(function(){ if (size()) seed(); }, 200);
+  });
+
+  if (!init()){
+    /* the card sits below the fold at load and can measure 0 */
+    if (window.requestAnimationFrame) requestAnimationFrame(init);
+    window.addEventListener('load', init);
+  }
+})();
+
 </script>
 </body>
 </html>
