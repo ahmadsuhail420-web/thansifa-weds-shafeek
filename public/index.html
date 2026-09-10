@@ -279,7 +279,11 @@
     position:absolute;
     inset:0;
     width:100%;height:100%;
-    object-fit:cover;
+    /* contain, so the whole 720x1280 frame fits the screen: cover was
+       slicing the candle stands off both edges on tall phones and cropping
+       ~65% of the frame on desktop. The letterbox is invisible - the video's
+       own ground is #f6f1ec, the same colour as the hero behind it. */
+    object-fit:contain;
     z-index:1;
   }
   /* full-width band centred on the seam between the hero and the section below */
