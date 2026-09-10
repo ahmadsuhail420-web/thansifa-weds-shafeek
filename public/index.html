@@ -1131,6 +1131,18 @@
   var revealed  = false;   // hero already revealed
   var promptTimer = null;  // delayed reveal of the tap cue
 
+  /* body{overflow:hidden} stops a gesture from scrolling, but it does not
+     pin the offset: the browser restores the previous scroll position across
+     a reload while still locked, and iOS Safari scrolls the document under a
+     fixed overlay regardless. Either way the hero was revealed already part
+     way down the page, so own the position outright. */
+  if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+  function toTop(){ window.scrollTo(0, 0); }
+  function blockScroll(e){ e.preventDefault(); }
+  toTop();
+  welcome.addEventListener('touchmove', blockScroll, {passive:false});
+  window.addEventListener('load', function(){ if (!revealed) toTop(); });
+
   // Belt-and-braces for reliable mobile inline playback
   [welcomeVideo, heroVideo].forEach(function(v){
     v.muted = true;
@@ -1148,7 +1160,13 @@
 
     welcome.classList.add('gone');
     hero.classList.add('reveal');
+
+    /* back to the top before the page can be seen, then again after the
+       hero has laid out, so the guest always starts at the masthead */
+    welcome.removeEventListener('touchmove', blockScroll);
+    toTop();
     document.body.classList.add('unlocked');
+    requestAnimationFrame(toTop);
 
     /* any Play button raised for the welcome video is meaningless once that
        scene is over, so clear it before deciding about the hero video */
