@@ -440,9 +440,13 @@
     position:relative;
     width:min(84%,400px);
     aspect-ratio:5 / 3;
+    /* overflow:hidden was already here, so it clips the foil canvas to the
+       rounded corners too - no radius needed on the canvas itself */
     overflow:hidden;
-    background:#ffffff;
-    border:1px solid rgba(123,34,51,.16);
+    border-radius:clamp(14px,3.8vw,24px);
+    background:#7b2233 url("image/1.webp") center / cover no-repeat;
+    /* a burgundy hairline vanishes on a burgundy ground; gold reads as an edge */
+    border:1px solid rgba(201,163,91,.34);
   }
   /* the date is real text underneath, so it is readable even without scratching */
   .scratch-face{
@@ -453,7 +457,9 @@
     align-items:center;
     justify-content:center;
     gap:clamp(6px,2vw,13px);
-    color:var(--burgundy);
+    /* 1.webp's visible band averages rgb(73,21,20), so the old burgundy text
+       sat at 1.51:1 against it. Ivory-light is 14.4:1. */
+    color:var(--ivory-light);
     padding:8%;
   }
   .date-label{
@@ -463,7 +469,7 @@
     text-transform:uppercase;
     font-size:clamp(8px,2.2vw,11px);
     padding-left:.34em;
-    opacity:.65;
+    opacity:.78;               /* light on dark now, so it can carry more */
   }
   .date-value{
     font-family:var(--serif);
