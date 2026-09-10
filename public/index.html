@@ -954,6 +954,37 @@
     100%{opacity:0}
   }
 
+  /* ===== MUSIC TOGGLE ===== */
+  .music-toggle{
+    position:fixed;
+    right:calc(16px + env(safe-area-inset-right));
+    bottom:calc(16px + env(safe-area-inset-bottom));
+    z-index:30;                /* over the page, under the intro overlay (20 is
+                                  the overlay; this must clear it) */
+    display:none;              /* shown once the music is actually playing */
+    place-items:center;
+    width:clamp(40px,11vw,48px);
+    height:clamp(40px,11vw,48px);
+    padding:0;
+    border:1px solid rgba(201,163,91,.5);
+    border-radius:999px;
+    background:rgba(26,20,16,.55);
+    backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+    color:var(--gold-soft);
+    cursor:pointer;
+    -webkit-tap-highlight-color:transparent;
+    opacity:0;
+    transition:opacity .8s var(--ease), transform .25s var(--ease);
+  }
+  .music-toggle.show{display:grid;opacity:1;}
+  .music-toggle:active{transform:scale(.92);}
+  .music-toggle svg{width:52%;height:52%;fill:none;stroke:currentColor;stroke-width:1.7;
+                    stroke-linecap:round;stroke-linejoin:round;}
+  /* one icon, two states: the waves hide and the slash shows when muted */
+  .music-toggle .m-slash{opacity:0;}
+  .music-toggle[aria-pressed="true"] .m-wave{opacity:0;}
+  .music-toggle[aria-pressed="true"] .m-slash{opacity:1;}
+
   /* Fallback control if autoplay is blocked */
   .autoplay-fallback{
     position:fixed;
@@ -1213,6 +1244,19 @@
   </footer>
 
   <!-- Fallback control if autoplay is blocked by the browser -->
+  <!-- the track is uploaded separately; everything below degrades quietly if
+       it is missing, so the control never appears without sound behind it -->
+  <audio id="music" src="audio/thansi.mp3" loop preload="auto"></audio>
+
+  <button class="music-toggle" id="musicToggle" type="button"
+          aria-pressed="false" aria-label="Mute music" title="Mute music">
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <path d="M4 9.5h3.2L12 5.5v13L7.2 14.5H4z"/>
+      <g class="m-wave"><path d="M16 9.2a4 4 0 0 1 0 5.6"/><path d="M18.6 6.8a7.5 7.5 0 0 1 0 10.4"/></g>
+      <g class="m-slash"><path d="M16.5 10l5 4"/><path d="M21.5 10l-5 4"/></g>
+    </svg>
+  </button>
+
   <button class="autoplay-fallback" id="autoplayFallback" type="button">
     <span class="play-tri" aria-hidden="true"></span>
     <span>Play</span>
@@ -1355,6 +1399,11 @@
 
     removeInteractionListeners();
 
+    /* this call is inside the tap handler on purpose: a browser only grants
+       audible playback from a real user gesture, so it has to happen here and
+       not on the video's 'ended' event later */
+    if (window.startMusic) window.startMusic();
+
     var p = welcomeVideo.play();
 
     if (p && typeof p.catch === 'function'){
@@ -1402,6 +1451,103 @@
   });
 })();
 
+
+/* ---------- background music: starts on the first tap, mutable ---------- */
+(function(){
+  "use strict";
+
+  var audio  = document.getElementById('music');
+  var toggle = document.getElementById('musicToggle');
+  if (!audio || !toggle) return;
+
+  var KEY     = 'tw-music-muted';
+  var VOLUME  = .55;
+  var usable  = true;      // set false if the file is missing or undecodable
+  var started = false;
+  var fade    = 0;
+
+  function stored(){
+    try { return localStorage.getItem(KEY) === '1'; } catch (e) { return false; }
+  }
+  function remember(m){
+    try { localStorage.setItem(KEY, m ? '1' : '0'); } catch (e) {}
+  }
+
+  function paint(){
+    var m = audio.muted;
+    toggle.setAttribute('aria-pressed', m ? 'true' : 'false');
+    toggle.setAttribute('aria-label', m ? 'Unmute music' : 'Mute music');
+    toggle.title = m ? 'Unmute music' : 'Mute music';
+  }
+
+  /* ease the volume up rather than opening at full level */
+  function fadeIn(){
+    clearInterval(fade);
+    audio.volume = 0;
+    var v = 0;
+    fade = setInterval(function(){
+      v += .045;
+      audio.volume = Math.min(VOLUME, v);
+      if (v >= VOLUME) clearInterval(fade);
+    }, 55);
+  }
+
+  /* The track is uploaded separately, so until it is there the control must
+     never appear - a mute button with no sound behind it is worse than none.
+     Note the <audio> element is parsed before this script, so its error event
+     can fire before the listener below exists: audio.error is checked
+     directly too, and the control is shown only once playback has actually
+     begun, rather than optimistically at the moment play() is called. */
+  function unusable(){
+    usable = false;
+    clearInterval(fade);
+    toggle.classList.remove('show');
+  }
+  function broken(){ return !usable || !!audio.error; }
+  audio.addEventListener('error', unusable);
+  audio.addEventListener('playing', function(){
+    if (!broken()) toggle.classList.add('show');
+  });
+
+  window.startMusic = function(){
+    if (started || broken()) return;
+    started = true;
+
+    audio.muted = stored();     // honour a guest who muted on a previous visit
+    paint();
+
+    var p = audio.play();
+    if (p && typeof p.catch === 'function'){
+      p.catch(function(){
+        /* two very different reasons to land here: no playable file, or the
+           browser refusing audible playback. Only the second deserves a
+           control, so give the media element a moment to report which. */
+        setTimeout(function(){
+          if (audio.error){ unusable(); return; }
+          audio.muted = true;
+          paint();
+          toggle.classList.add('show');
+        }, 300);
+      });
+    }
+    if (!audio.muted) fadeIn(); else audio.volume = VOLUME;
+  };
+
+  toggle.addEventListener('click', function(){
+    audio.muted = !audio.muted;
+    remember(audio.muted);
+    paint();
+    if (!audio.muted){
+      audio.volume = VOLUME;
+      if (audio.paused){
+        var p = audio.play();
+        if (p && typeof p.catch === 'function') p.catch(function(){});
+      }
+    }
+  });
+
+  paint();
+})();
 
 /* ---------- countdown ---------- */
 (function(){
