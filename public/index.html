@@ -38,7 +38,8 @@
        half sits in the hero, its lower half in the section below. Any lift
        here rides the band up into the hero and eats that much more of it. */
     --seal-lift:0px;
-    --art-tuck:.8;            /* fraction of the band's overhang that 2.webp slides under */
+    --art-tuck:.72;           /* fraction of the band's overhang that 2.webp slides under;
+                                 lower drops the card further down the section */
     --bismillah-lift:1vw;    /* the opening rides up on its own, via transform */
     --mono-w:clamp(132px,44vw,208px);   /* monogram width */
     /* mono.webp is 7.5% transparent at the top and 6.5% at the bottom; those
@@ -311,8 +312,11 @@
        2.webp plus the small gap below it */
     /* white stays as the fallback colour under the artwork */
     background:#ffffff url("image/1.webp") center top / cover no-repeat;
-    padding:calc(var(--seal-overhang) - var(--seal-lift) + 5vh) 24px 4vh;
-    padding:calc(var(--seal-overhang) - var(--seal-lift) + 5svh) 24px 4svh;
+    /* the bottom padding sets how much of 1.webp shows below the card. The
+       art is 1000x1777 and renders ~714px tall at cover on a 402px-wide
+       phone, so there is plenty of it left to reveal before it would scale */
+    padding:calc(var(--seal-overhang) - var(--seal-lift) + 5vh) 24px 7vh;
+    padding:calc(var(--seal-overhang) - var(--seal-lift) + 5svh) 24px 7svh;
   }
   /* the negative top margin cancels the section's 5svh gap and pulls the card
      up under the flower band, so its top edge is covered by mbl.webp */
