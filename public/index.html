@@ -34,8 +34,10 @@
     --hero-header-top:1.6svh;
     /* seal spans the full width; 1230x792 art means height = 64.4vw, so half is: */
     --seal-overhang:32.2vw;
-    --seal-lift:3.4vh;         /* how far the flower band rides above the seam */
-    --seal-lift:3.4svh;
+    /* 0 so the band is centred exactly on the hero's bottom edge: its upper
+       half sits in the hero, its lower half in the section below. Any lift
+       here rides the band up into the hero and eats that much more of it. */
+    --seal-lift:0px;
     --art-tuck:.8;            /* fraction of the band's overhang that 2.webp slides under */
     --bismillah-lift:1vw;    /* the opening rides up on its own, via transform */
     --mono-w:clamp(132px,44vw,208px);   /* monogram width */
