@@ -48,11 +48,18 @@
     font-family:var(--sans);
     background:var(--ink);
     color:var(--ivory);
+    /* Locked for the intro. position:fixed, not overflow:hidden alone: on
+       iOS Safari overflow:hidden does not stop a swipe, and any offset that
+       accumulates - or that the browser restores across a reload - is still
+       there when the hero is unveiled, so it opens part way down the page.
+       While the body is fixed the document has nowhere to scroll to at all. */
+    position:fixed;
+    inset:0;
     overflow:hidden;
     overscroll-behavior:none;
     -webkit-font-smoothing:antialiased;
   }
-  body.unlocked{overflow-y:auto;overflow-x:hidden;}
+  body.unlocked{position:static;overflow-y:auto;overflow-x:hidden;}
   img,video{display:block;max-width:100%;}
 
   /* Full-screen sizing with mobile-safe viewport units */
@@ -1137,11 +1144,18 @@
      fixed overlay regardless. Either way the hero was revealed already part
      way down the page, so own the position outright. */
   if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
-  function toTop(){ window.scrollTo(0, 0); }
+  function toTop(){
+    window.scrollTo(0, 0);
+    /* whichever element the engine treats as the scroller */
+    if (document.documentElement) document.documentElement.scrollTop = 0;
+    if (document.body) document.body.scrollTop = 0;
+  }
   function blockScroll(e){ e.preventDefault(); }
   toTop();
   welcome.addEventListener('touchmove', blockScroll, {passive:false});
   window.addEventListener('load', function(){ if (!revealed) toTop(); });
+  /* a back/forward restore from the bfcache skips 'load' entirely */
+  window.addEventListener('pageshow', function(){ if (!revealed) toTop(); });
 
   // Belt-and-braces for reliable mobile inline playback
   [welcomeVideo, heroVideo].forEach(function(v){
