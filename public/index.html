@@ -1,0 +1,1483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#1a1410" />
+<title>Thanseefa &amp; Shakeer</title>
+
+<link rel="preload" as="image" href="image/w-poster.webp" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cormorant+Garamond:wght@300;400;500;600&family=Josefin+Sans:wght@300;400;500&family=Playfair+Display:wght@400;500&display=swap" rel="stylesheet" />
+
+<style>
+  :root{
+    --ivory:#f7f1e6;
+    --ivory-light:#fdfaf4;     /* a brighter ivory, for text on the burgundy card */
+    --champagne:#e8d6b3;
+    --gold:#c9a35b;
+    --gold-soft:#d8bd82;
+    --ink:#1a1410;
+    --burgundy:#7b2233;
+    --sans:'Josefin Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    --serif:'Cormorant Garamond', 'Times New Roman', serif;
+    --arabic:'Amiri', 'Traditional Arabic', serif;
+    --display:'Playfair Display', 'Cormorant Garamond', Georgia, serif;
+    --ease:cubic-bezier(.22,.61,.36,1);
+    --hero-header-top:1.6vh;   /* masthead offset from the top of the hero */
+    /* seal spans the full width; 1230x792 art means height = 64.4vw, so half is: */
+    --seal-overhang:32.2vw;
+    --seal-lift:3.4vh;         /* how far the flower band rides above the seam */
+    --art-tuck:.8;            /* fraction of the band's overhang that 2.webp slides under */
+    --bismillah-lift:1vw;    /* the opening rides up on its own, via transform */
+    --mono-w:clamp(132px,44vw,208px);   /* monogram width */
+    /* mono.webp is 7.5% transparent at the top and 6.5% at the bottom; those
+       are cancelled below so the gaps measure to the visible art, not the box */
+    --mono-pad-top:.075;
+    --mono-pad-bottom:.065;
+    --hero-stack-gap:clamp(11px,3.5vw,30px);  /* equal space between all three */
+    /* nikah.webp's card is not square to the frame; its clean left edge
+       measures -5.3deg, so the text is set to match */
+    --nikah-tilt:-5.4deg;
+  }
+
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{height:100%;}
+  body{
+    font-family:var(--sans);
+    background:var(--ink);
+    color:var(--ivory);
+    overflow:hidden;
+    overscroll-behavior:none;
+    -webkit-font-smoothing:antialiased;
+  }
+  body.unlocked{overflow-y:auto;overflow-x:hidden;}
+  img,video{display:block;max-width:100%;}
+
+  /* Full-screen sizing with mobile-safe viewport units */
+  .fullscreen{
+    position:fixed;
+    inset:0;
+    width:100%;
+    height:100vh;
+    height:100svh;
+    min-height:100dvh;
+  }
+
+  /* ===== WELCOME SCENE ===== */
+  #welcome{
+    z-index:20;
+    background:var(--ink);
+    transition:opacity 1.4s var(--ease);
+  }
+  #welcome.gone{opacity:0;pointer-events:none;}
+
+  #welcome video, #welcome .poster{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    object-fit:cover;
+  }
+
+  #welcome-video{opacity:0;transition:opacity 1.2s var(--ease);}
+  #welcome-video.playing{opacity:1;}
+
+  .poster{
+    z-index:2;
+    opacity:1;
+    transition:opacity 1.3s var(--ease);
+    will-change:opacity;
+  }
+  .poster.fade-out{opacity:0;pointer-events:none;}
+
+  /* subtle vignette so the cue reads over any frame */
+  .scrim{
+    position:absolute;inset:0;z-index:3;pointer-events:none;
+    background:linear-gradient(180deg, rgba(10,7,4,.15) 0%, transparent 45%, rgba(10,7,4,.55) 100%);
+  }
+
+  /* Tap cue (functional prompt only) */
+  .tap-prompt{
+    position:absolute;
+    inset:0;
+    z-index:4;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:flex-end;
+    padding:0 24px calc(12vh + env(safe-area-inset-bottom));
+    text-align:center;
+    opacity:0;
+    transition:opacity 1.1s var(--ease);
+  }
+  .tap-prompt.show{opacity:1;}
+  .tap-prompt.hide{opacity:0;pointer-events:none;}
+
+  .tap-cta{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:1.1rem;
+  }
+  .tap-cta-text{
+    font-family:var(--sans);
+    font-weight:300;
+    letter-spacing:.24em;
+    text-transform:uppercase;
+    font-size:.72rem;
+    color:var(--ivory);
+    text-shadow:0 2px 18px rgba(0,0,0,.6);
+    padding-left:.24em;
+  }
+  .tap-ring{
+    width:52px;height:52px;border-radius:50%;
+    border:1px solid var(--gold-soft);
+    position:relative;
+    display:grid;place-items:center;
+  }
+  .tap-ring::before{
+    content:"";
+    position:absolute;inset:-1px;border-radius:50%;
+    border:1px solid var(--gold);
+    animation:ripple 2.6s var(--ease) infinite;
+  }
+  .tap-ring::after{
+    content:"";
+    width:9px;height:9px;border-radius:50%;
+    background:var(--gold);
+    box-shadow:0 0 18px var(--gold-soft);
+    animation:pulse 2.6s ease-in-out infinite;
+  }
+  @keyframes ripple{
+    0%{transform:scale(1);opacity:.7}
+    70%{transform:scale(1.9);opacity:0}
+    100%{opacity:0}
+  }
+  @keyframes pulse{
+    0%,100%{transform:scale(1);opacity:.85}
+    50%{transform:scale(1.35);opacity:1}
+  }
+
+  /* ===== HERO SCENE ===== */
+  #hero{
+    position:relative;
+    width:100%;
+    /* svh is the *small* viewport (URL bar showing) and is a static value, so
+       the hero keeps one height while Chrome's bar hides on scroll. Never dvh
+       here: it re-resolves as the bar retracts and the section would resize. */
+    height:100vh;          /* fallback for browsers without svh */
+    height:100svh;
+    /* matches the video's own ivory ground, so there is no white flash
+       before the first frame paints */
+    background:#f6f1ec;
+    opacity:0;
+    visibility:hidden;
+    z-index:2;                 /* keeps the seal above the next section */
+    transition:opacity 1.6s var(--ease);
+  }
+  #hero.reveal{opacity:1;visibility:visible;}
+
+  /* --- masthead, overlaid on the video --- */
+  .hero-header{
+    position:absolute;
+    left:0;right:0;top:0;
+    z-index:3;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    text-align:center;
+    padding:calc(var(--hero-header-top) + env(safe-area-inset-top)) 24px 0;
+    gap:var(--hero-stack-gap);
+  }
+  .hero-eyebrow{
+    font-family:var(--sans);
+    font-weight:500;
+    letter-spacing:.42em;
+    text-transform:uppercase;
+    font-size:.62rem;
+    color:var(--burgundy);
+    padding-left:.42em;
+  }
+  .hero-mono-slot{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .hero-mono{
+    width:var(--mono-w);
+    height:auto;
+    max-width:none;
+    /* pull the box in to the artwork's own edges so the gap above and below
+       the monogram matches the gap between the text lines */
+    margin-top:calc(var(--mono-w) * -1 * var(--mono-pad-top));
+    margin-bottom:calc(var(--mono-w) * -1 * var(--mono-pad-bottom));
+  }
+  .hero-names{
+    font-family:var(--display);
+    font-weight:400;
+    font-size:clamp(1.45rem,6.7vw,2.3rem);
+    letter-spacing:.012em;
+    line-height:1.15;
+    color:var(--ink);
+  }
+  .hero-names .amp{
+    font-style:italic;
+    color:var(--gold);
+    margin:0 .22em;
+  }
+
+  /* --- hanging lamps in the top corners --- */
+  .hero-light{
+    position:absolute;
+    top:0;
+    z-index:2;                 /* over the video, under the masthead */
+    width:clamp(58px,19vw,124px);
+    height:auto;
+    max-width:none;
+    pointer-events:none;
+    /* the lamp hangs from a cord at the very top of the file, so it has to
+       swing from there rather than from its middle */
+    transform-origin:top center;
+    animation:sway 6s ease-in-out infinite alternate;
+  }
+  .hero-light--left{ left:0; }
+  .hero-light--right{ right:0; animation-delay:-2.6s; }
+  @keyframes sway{
+    from{ transform:rotate(-2.4deg); }
+    to  { transform:rotate(2.4deg); }
+  }
+  @media (prefers-reduced-motion:reduce){
+    .hero-light{ animation:none; }
+  }
+
+  /* --- video is the hero's full background --- */
+  .hero-media{
+    position:absolute;
+    inset:0;
+    overflow:hidden;
+  }
+  .hero-media video{
+    position:absolute;
+    inset:0;
+    width:100%;height:100%;
+    object-fit:cover;
+    z-index:1;
+  }
+  /* full-width band centred on the seam between the hero and the section below */
+  .hero-seal{
+    position:absolute;
+    left:0;right:0;
+    bottom:var(--seal-lift);
+    z-index:6;
+    display:block;
+    transform:translateY(50%);
+    pointer-events:none;
+  }
+  .hero-seal img{
+    display:block;
+    width:100%;
+    height:auto;
+    max-width:none;
+  }
+
+  /* section following the hero; top padding clears the seal's lower half */
+  .after-hero{
+    position:relative;
+    z-index:1;
+    /* height follows the art: no aspect-ratio, so the section is just
+       2.webp plus the small gap below it */
+    /* white stays as the fallback colour under the artwork */
+    background:#ffffff url("image/1.webp") center top / cover no-repeat;
+    padding:calc(var(--seal-overhang) - var(--seal-lift) + 5vh) 24px 4vh;
+  }
+  /* the negative top margin cancels the section's 5vh gap and pulls the card
+     up under the flower band, so its top edge is covered by mbl.webp */
+  .invite{
+    position:relative;
+    width:calc(100% + 48px);   /* breaks out of the section's 24px side padding */
+    margin:calc(-5vh - (var(--seal-overhang) - var(--seal-lift)) * var(--art-tuck)) -24px 0;
+  }
+  .after-hero-art{
+    display:block;
+    width:100%;
+    height:auto;
+    max-width:none;
+  }
+  /* the wording sits inside the lace panel; the top padding matches exactly the
+     slice of the card that the flower band covers, so nothing hides behind it */
+  .invite-text{
+    position:absolute;
+    inset:0;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    color:var(--burgundy);
+    padding:calc((var(--seal-overhang) - var(--seal-lift)) * var(--art-tuck) - 2vh) 11% 5%;
+    gap:0;                     /* spacing is set per group below */
+  }
+  .invite-group{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+  }
+  .invite-group > * + *{ margin-top:clamp(2px,.7vw,6px); }   /* tight within a group */
+
+  /* transform, not margin: only the opening moves, everything below stays put */
+  .invite-opening{ transform:translateY(calc(-1 * var(--bismillah-lift))); }
+
+  /* small gap after the Bismillah, clear gaps around the invitation sentence */
+  .invite-hosts-group{ margin-top:clamp(7px,2.2vw,16px); }
+  .invite-request{
+    margin-top:clamp(16px,6.4vw,44px);
+    max-width:80%;             /* narrower than the rest of the wording */
+    text-wrap:balance;         /* even line lengths instead of an orphan word */
+  }
+  .invite-couple{ margin-top:clamp(16px,6.4vw,44px); }
+  .invite-couple .invite-amp{ margin-top:clamp(5px,1.8vw,12px); }
+  .invite-couple .invite-name{ margin-top:clamp(4px,1.4vw,10px); }
+  .invite-bismillah{
+    font-family:var(--arabic);
+    font-weight:400;
+    font-size:clamp(18px,6vw,34px);
+    line-height:1.9;
+    direction:rtl;
+  }
+  .invite-sub{
+    font-family:var(--sans);
+    font-weight:400;
+    text-transform:uppercase;
+    letter-spacing:.05em;
+    font-size:clamp(6.8px,1.92vw,12.5px);
+    line-height:1.7;
+  }
+  .invite-hosts{
+    font-family:var(--serif);
+    font-weight:500;
+    font-size:clamp(15px,4.4vw,26px);
+    line-height:1.25;
+  }
+  .invite-note{
+    font-family:var(--serif);
+    font-weight:400;
+    font-size:clamp(10px,3vw,16px);
+    line-height:1.4;
+  }
+  .invite-name{
+    font-family:var(--serif);
+    font-weight:500;
+    font-size:clamp(20px,6.6vw,38px);
+    line-height:1.15;
+  }
+  .invite-amp{
+    font-family:var(--serif);
+    font-style:italic;
+    font-size:clamp(16px,5vw,30px);
+    line-height:1.2;
+  }
+
+  /* ===== DATE SCRATCH-REVEAL ===== */
+  .date-reveal{
+    position:relative;
+    z-index:1;
+    background:#fbf7f0;        /* warm ivory, deliberately unlike the card section */
+    padding:clamp(64px,16vw,132px) 24px clamp(72px,18vw,148px);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    text-align:center;
+  }
+  .sec-heading{
+    font-family:var(--serif);
+    font-weight:400;
+    font-size:clamp(25px,7.4vw,42px);
+    line-height:1.15;
+    letter-spacing:.01em;
+    color:var(--burgundy);
+  }
+  .sec-rule{
+    display:block;
+    width:clamp(44px,13vw,72px);
+    height:1px;
+    background:var(--gold);
+    opacity:.55;
+    /* auto side margins: .sec-inner is a block, so the rule must centre itself */
+    margin:clamp(18px,4.6vw,30px) auto clamp(26px,7vw,46px);
+  }
+
+  .scratch{
+    position:relative;
+    width:min(84%,400px);
+    aspect-ratio:5 / 3;
+    overflow:hidden;
+    background:#ffffff;
+    border:1px solid rgba(123,34,51,.16);
+  }
+  /* the date is real text underneath, so it is readable even without scratching */
+  .scratch-face{
+    position:absolute;
+    inset:0;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:clamp(6px,2vw,13px);
+    color:var(--burgundy);
+    padding:8%;
+  }
+  .date-label{
+    font-family:var(--sans);
+    font-weight:400;
+    letter-spacing:.34em;
+    text-transform:uppercase;
+    font-size:clamp(8px,2.2vw,11px);
+    padding-left:.34em;
+    opacity:.65;
+  }
+  .date-value{
+    font-family:var(--serif);
+    font-weight:500;
+    font-size:clamp(26px,8.4vw,44px);
+    line-height:1.1;
+  }
+
+  .scratch-foil{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    display:block;
+    touch-action:none;         /* dragging scratches instead of scrolling */
+    cursor:grab;
+    transition:opacity .9s var(--ease);
+  }
+  .scratch.revealed .scratch-foil{ opacity:0; pointer-events:none; }
+
+  @media (prefers-reduced-motion:reduce){
+    .scratch-foil{ transition-duration:.2s !important; }
+  }
+
+  /* ===== SHARED SECTION SHELL ===== */
+  .sec{
+    position:relative;
+    z-index:1;
+    padding:clamp(56px,14vw,112px) 24px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    text-align:center;
+  }
+  .sec--ivory{ background:#fbf7f0; }
+  .sec--white{ background:#ffffff; }
+  .sec-inner{ width:100%; max-width:520px; }
+
+  /* ===== COUNTDOWN ===== */
+  .count-grid{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    width:100%;
+    max-width:430px;
+    margin:0 auto;
+  }
+  .count-cell{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:clamp(6px,1.8vw,11px);
+    padding:0 clamp(2px,1vw,8px);
+  }
+  .count-cell + .count-cell{ border-left:1px solid rgba(201,163,91,.4); }
+  .count-num{
+    font-family:var(--serif);
+    font-weight:500;
+    font-size:clamp(26px,8.4vw,44px);
+    line-height:1;
+    color:var(--burgundy);
+    font-variant-numeric:tabular-nums;   /* digits keep their width as they tick */
+    font-feature-settings:"tnum" 1;
+  }
+  .count-lab{
+    font-family:var(--sans);
+    font-weight:400;
+    letter-spacing:.24em;
+    text-transform:uppercase;
+    font-size:clamp(7px,2vw,10px);
+    color:var(--burgundy);
+    opacity:.6;
+    padding-left:.24em;
+  }
+  .count-done{
+    font-family:var(--serif);
+    font-style:italic;
+    font-size:clamp(17px,4.8vw,24px);
+    color:var(--burgundy);
+  }
+
+  /* ===== NIKAH DETAILS (set inside nikah.webp's empty card) =====
+     Sized off the artwork. The card is tilted, so an upright box inscribed in
+     it wastes a lot of room; rotating the panel mask flat first and taking the
+     largest rectangle there gives 40.3% x 58.3% of the image centred at
+     40.2%, 58.1% - about a third more area. Kept at 97% of that, which samples
+     completely clear of the lace.
+     Re-measure these if the artwork is ever replaced. */
+  .nikah-art{
+    position:relative;
+    width:calc(100% + 48px);   /* breaks out of the section's side padding */
+    margin:0 -24px;
+  }
+  .nikah-card{
+    display:block;
+    width:100%;
+    height:auto;
+    max-width:none;
+    /* drop-shadow, not box-shadow: the art is a cutout with a transparent
+       surround, so the shadow must follow its silhouette */
+    filter:drop-shadow(0 clamp(6px,1.6vw,14px) clamp(12px,3.2vw,26px) rgba(90,25,40,.28));
+  }
+  /* centred on the open cream blossom at the artwork's top right - its
+     stamen, the flower's true middle, sits at 80.3%, 10.9% of the card.
+     Averaged over all 19 frames the insect's own centre of mass is at 63.4%
+     across / 53.7% down its canvas, so the offsets below put *it* - not the
+     file's corner - on that point, nudged a touch up and right of dead centre.
+     % rather than vw, so it holds the flower at any width. */
+  .nikah-butterfly{
+    position:absolute;
+    top:-1.7%;
+    left:66.9%;
+    width:24%;
+    height:auto;
+    max-width:none;
+    z-index:2;
+    pointer-events:none;
+  }
+  .nikah-panel{
+    position:absolute;
+    left:40.2%;
+    top:58.1%;
+    width:39.1%;
+    /* a little under the card's full height: three short details cannot fill
+       it without gaping, so the surplus goes to an even top/bottom margin */
+    height:52%;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    /* centred with a set gap: space-between pushed the three details apart to
+       fill every pixel, so the leftover is left as an even top/bottom margin */
+    justify-content:center;
+    text-align:center;
+    gap:16px;
+    /* one small, even margin on all four sides. Not %: percentage padding
+       resolves against the containing block's width (the whole artwork),
+       which would eat a third of this narrow box. */
+    padding:clamp(4px,1.3vw,13px);
+    /* centre-anchored, so the box can be sized in the card's own frame */
+    transform:translate(-50%,-50%) rotate(var(--nikah-tilt));
+  }
+  .nikah-row{ display:flex; flex-direction:column; align-items:center; gap:.2em; }
+  .nikah-term{
+    font-family:var(--sans);
+    font-weight:400;
+    letter-spacing:.22em;
+    text-transform:uppercase;
+    /* sized against the panel, which is ~34.7% of the image width */
+    font-size:clamp(7px,2.35vw,36px);
+    color:var(--gold-soft);
+    opacity:.85;
+    padding-left:.22em;
+  }
+  .nikah-detail{
+    font-family:var(--serif);
+    font-weight:500;
+    /* 4.25vw is the ceiling that keeps 'Sunday, 27 Sep 2026' on one line */
+    font-size:clamp(12px,4.25vw,62px);
+    line-height:1.16;
+    text-wrap:balance;         /* avoids a lone '2026' on its own line */
+    color:var(--ivory-light);
+  }
+  .nikah-detail small{
+    display:block;
+    font-size:.76em;
+    font-weight:400;
+    opacity:.85;
+    margin-top:.15em;
+  }
+
+  /* ===== MAP ===== */
+  .map-frame{
+    width:100%;
+    aspect-ratio:4 / 3;
+    border:1px solid rgba(123,34,51,.16);
+    overflow:hidden;
+    background:#f2ece1;
+  }
+  .map-frame iframe{
+    display:block;
+    width:100%;
+    height:100%;
+    border:0;
+  }
+  .map-link{
+    display:inline-block;
+    margin-top:clamp(18px,4.4vw,28px);
+    font-family:var(--sans);
+    font-weight:400;
+    letter-spacing:.28em;
+    text-transform:uppercase;
+    font-size:clamp(8px,2.2vw,11px);
+    color:var(--burgundy);
+    text-decoration:none;
+    padding:.85em 1.6em .85em calc(1.6em + .28em);
+    border:1px solid rgba(201,163,91,.65);
+    transition:background-color .3s var(--ease);
+  }
+  .map-link:hover,.map-link:focus-visible{ background:rgba(201,163,91,.12); }
+
+  /* ===== WISHES WALL ===== */
+  .wish-form{
+    display:flex;
+    flex-direction:column;
+    gap:clamp(10px,2.6vw,14px);
+    width:100%;
+  }
+  .wish-form label{
+    position:absolute;
+    width:1px;height:1px;
+    overflow:hidden;
+    clip:rect(0 0 0 0);
+    white-space:nowrap;
+  }
+  .wish-form input,.wish-form textarea{
+    width:100%;
+    font-family:var(--serif);
+    font-size:clamp(15px,4vw,18px);
+    color:var(--burgundy);
+    background:#fff;
+    border:1px solid rgba(123,34,51,.18);
+    padding:.85em 1em;
+    border-radius:0;
+    -webkit-appearance:none;
+  }
+  .wish-form textarea{ min-height:5.5em; resize:vertical; line-height:1.5; }
+  .wish-form input::placeholder,.wish-form textarea::placeholder{ color:rgba(123,34,51,.42); }
+  .wish-form input:focus,.wish-form textarea:focus{
+    outline:none;
+    border-color:var(--gold);
+  }
+  .wish-send{
+    align-self:center;
+    margin-top:clamp(4px,1.4vw,8px);
+    font-family:var(--sans);
+    font-weight:400;
+    letter-spacing:.28em;
+    text-transform:uppercase;
+    font-size:clamp(8px,2.2vw,11px);
+    color:var(--burgundy);
+    background:transparent;
+    border:1px solid rgba(201,163,91,.65);
+    padding:.95em 2.1em .95em calc(2.1em + .28em);
+    cursor:pointer;
+    transition:background-color .3s var(--ease);
+  }
+  .wish-send:hover,.wish-send:focus-visible{ background:rgba(201,163,91,.12); }
+  .wish-status{
+    margin-top:clamp(10px,2.6vw,16px);
+    font-family:var(--serif);
+    font-style:italic;
+    font-size:clamp(13px,3.4vw,16px);
+    color:var(--burgundy);
+    opacity:.8;
+    min-height:1.4em;
+  }
+  .wish-list{
+    list-style:none;
+    margin-top:clamp(26px,7vw,44px);
+    display:flex;
+    flex-direction:column;
+    gap:clamp(14px,3.6vw,20px);
+    width:100%;
+  }
+  .wish-list:empty{ display:none; }
+  .wish-card{
+    background:#fff;
+    border:1px solid rgba(123,34,51,.14);
+    padding:clamp(16px,4.2vw,24px);
+    text-align:left;
+  }
+  .wish-card p{
+    font-family:var(--serif);
+    font-size:clamp(15px,4vw,18px);
+    line-height:1.55;
+    color:var(--burgundy);
+  }
+  .wish-card cite{
+    display:block;
+    margin-top:.7em;
+    font-family:var(--sans);
+    font-style:normal;
+    font-weight:400;
+    letter-spacing:.24em;
+    text-transform:uppercase;
+    font-size:clamp(8px,2.1vw,10px);
+    color:var(--burgundy);
+    opacity:.6;
+  }
+
+  /* ===== CONTACT ===== */
+  .contact-grid{
+    display:grid;
+    grid-template-columns:1fr auto;
+    align-items:center;
+    gap:clamp(14px,4vw,40px);
+    width:100%;
+    text-align:left;
+  }
+  .contact-list{
+    display:flex;
+    flex-direction:column;
+    gap:clamp(20px,5.5vw,34px);
+  }
+  .contact-role{
+    font-family:var(--sans);
+    font-weight:400;
+    letter-spacing:.26em;
+    text-transform:uppercase;
+    font-size:clamp(8px,2.3vw,12px);
+    color:var(--burgundy);
+    opacity:.62;
+    padding-left:.26em;
+  }
+  .contact-name{
+    font-family:var(--serif);
+    font-weight:500;
+    font-size:clamp(17px,5vw,26px);
+    line-height:1.25;
+    color:var(--burgundy);
+    margin-top:.25em;
+    display:flex;
+    align-items:center;
+    gap:.45em;
+  }
+  .contact-icons{
+    display:inline-flex;
+    align-items:center;
+    gap:.34em;
+    flex:0 0 auto;
+  }
+  .contact-icons svg{
+    display:block;
+    width:clamp(15px,4.2vw,22px);
+    height:auto;
+    fill:var(--burgundy);
+    opacity:.78;
+  }
+  .contact-art{
+    width:clamp(112px,34vw,230px);
+    height:auto;
+    max-width:none;
+    justify-self:end;
+  }
+
+  /* ===== FOOTER ===== */
+  .site-footer{
+    /* same ground as the invitation section */
+    background:#ffffff url("image/1.webp") center top / cover no-repeat;
+    color:var(--ivory);
+    padding:clamp(30px,8vw,56px) 24px calc(clamp(30px,8vw,56px) + env(safe-area-inset-bottom));
+    text-align:center;
+  }
+  .footer-mono{
+    width:clamp(50px,13vw,74px);
+    height:auto;
+    margin:0 auto clamp(10px,2.6vw,18px);
+    opacity:.9;
+    filter:brightness(0) invert(1) opacity(.85);
+  }
+  .footer-names{
+    font-family:var(--serif);
+    font-weight:400;
+    font-size:clamp(22px,6.4vw,34px);
+    line-height:1.15;
+  }
+  .footer-names .amp{ font-style:italic; color:var(--gold-soft); margin:0 .2em; }
+  .footer-date{
+    margin-top:clamp(10px,2.6vw,16px);
+    font-family:var(--sans);
+    font-weight:400;
+    letter-spacing:.3em;
+    text-transform:uppercase;
+    font-size:clamp(8px,2.2vw,11px);
+    opacity:.85;
+    padding-left:.3em;
+  }
+  .footer-gift{
+    margin-top:clamp(14px,3.6vw,22px);
+    font-family:var(--sans);
+    font-weight:400;
+    letter-spacing:.2em;
+    text-transform:uppercase;
+    font-size:clamp(8px,2.1vw,10px);
+    line-height:1.9;
+    opacity:.72;
+    padding-left:.2em;
+  }
+  .footer-thanks{
+    margin-top:clamp(9px,2.4vw,14px);
+    font-family:var(--serif);
+    font-style:italic;
+    font-size:clamp(14px,3.8vw,18px);
+    opacity:.85;
+  }
+
+  /* Scroll cue (functional cue only) */
+  .scroll-cue{
+    position:absolute;
+    left:50%;
+    bottom:calc(2.5vh + env(safe-area-inset-bottom));
+    transform:translateX(-50%);
+    z-index:7;                 /* above the flower band */
+    display:flex;flex-direction:column;align-items:center;gap:.7rem;
+    opacity:0;
+    animation:rise 1.2s var(--ease) 1.4s forwards;
+    text-decoration:none;
+  }
+  .scroll-cue .label{
+    font-family:var(--sans);font-weight:300;
+    letter-spacing:.28em;text-transform:uppercase;
+    font-size:.6rem;color:var(--ivory);opacity:.9;
+    padding-left:.28em;
+    text-shadow:0 2px 14px rgba(0,0,0,.6);
+  }
+  .scroll-cue .mouse{
+    width:22px;height:34px;border-radius:12px;
+    border:1px solid var(--gold-soft);
+    position:relative;
+  }
+  .scroll-cue .mouse::after{
+    content:"";position:absolute;left:50%;top:7px;
+    width:3px;height:7px;border-radius:2px;background:var(--gold);
+    transform:translateX(-50%);
+    animation:scroll-dot 1.8s var(--ease) infinite;
+  }
+  @keyframes rise{to{opacity:1;transform:translate(-50%,0)}}
+  @keyframes scroll-dot{
+    0%{opacity:0;transform:translate(-50%,0)}
+    35%{opacity:1}
+    70%{opacity:0;transform:translate(-50%,10px)}
+    100%{opacity:0}
+  }
+
+  /* Fallback control if autoplay is blocked */
+  .autoplay-fallback{
+    position:fixed;
+    left:50%;bottom:calc(6vh + env(safe-area-inset-bottom));
+    transform:translateX(-50%);
+    z-index:40;
+    display:none;
+    align-items:center;gap:.6rem;
+    padding:.85rem 1.5rem;
+    border:1px solid var(--gold-soft);
+    border-radius:999px;
+    background:rgba(12,8,5,.6);
+    backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+    color:var(--ivory);
+    font-family:var(--sans);font-weight:300;
+    letter-spacing:.2em;text-transform:uppercase;font-size:.66rem;
+    cursor:pointer;
+  }
+  .autoplay-fallback.show{display:inline-flex;}
+  .autoplay-fallback .play-tri{
+    width:0;height:0;border-style:solid;
+    border-width:5px 0 5px 8px;border-color:transparent transparent transparent var(--gold);
+  }
+
+  @media (prefers-reduced-motion:reduce){
+    *{animation:none !important;transition-duration:.3s !important;}
+  }
+</style>
+</head>
+<body>
+
+  <!-- ===================== WELCOME SCENE ===================== -->
+  <div id="welcome" class="fullscreen" role="button" tabindex="0" aria-label="Tap to begin our story">
+    <video id="welcome-video" playsinline muted preload="auto" webkit-playsinline
+           src="video/w-bg.mp4"></video>
+
+    <img class="poster" id="poster" src="image/w-poster.webp" alt="" />
+
+    <div class="scrim"></div>
+
+    <div class="tap-prompt" id="tapPrompt">
+      <div class="tap-cta">
+        <span class="tap-cta-text">Tap to begin our story</span>
+        <span class="tap-ring" aria-hidden="true"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== HERO SCENE ===================== -->
+  <div id="hero">
+    <header class="hero-header">
+      <p class="hero-eyebrow">The Wedding Of</p>
+      <div class="hero-mono-slot">
+        <img class="hero-mono" src="image/mono.webp" alt="" />
+      </div>
+      <h1 class="hero-names">Thanseefa<span class="amp">&amp;</span>Shakeer</h1>
+    </header>
+
+    <img class="hero-light hero-light--left" src="image/light.webp" alt="" />
+    <img class="hero-light hero-light--right" src="image/light.webp" alt="" />
+
+    <div class="hero-media">
+      <video id="hero-video" playsinline muted loop preload="auto" webkit-playsinline
+             src="video/h-bg.mp4"></video>
+    </div>
+
+    <div class="scroll-cue" aria-hidden="true">
+      <span class="label">Scroll to explore</span>
+      <span class="mouse"></span>
+    </div>
+
+    <picture class="hero-seal">
+      <source media="(min-width:768px)" srcset="image/lap.webp" />
+      <img src="image/mbl.webp" alt="" />
+    </picture>
+  </div>
+
+  <section class="after-hero">
+    <div class="invite">
+      <img class="after-hero-art" src="image/2.webp" alt="" />
+
+      <div class="invite-text">
+        <div class="invite-group invite-opening">
+          <p class="invite-bismillah" lang="ar">&#1576;&#1587;&#1605; &#1575;&#1604;&#1604;&#1607; &#1575;&#1604;&#1585;&#1581;&#1605;&#1606; &#1575;&#1604;&#1585;&#1581;&#1610;&#1605;</p>
+          <p class="invite-sub">In the name of Allah<br />the most beneficient the most merciful</p>
+        </div>
+
+        <div class="invite-group invite-hosts-group">
+          <p class="invite-hosts">Mr.Isubu &amp; Mrs.Jameela</p>
+          <p class="invite-note">(Pattur House, Kokkada)</p>
+        </div>
+
+        <p class="invite-sub invite-request">We cordially invite your esteemed presence with family<br />for the wedding of our daughter</p>
+
+        <div class="invite-group invite-couple">
+          <h2 class="invite-name">Fathimath Thanseefa</h2>
+          <p class="invite-note">(Grand D/O Abdullah &amp; Late Aboobakkar)</p>
+          <p class="invite-amp">&amp;</p>
+          <h2 class="invite-name">Ahammad Shakeer M</h2>
+          <p class="invite-note">(S/O Mr.Hassainar &amp; Mrs.Ayisha<br />Ummikala house Bellare)</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="date-reveal">
+    <h2 class="sec-heading">Scratch to Reveal</h2>
+    <span class="sec-rule" aria-hidden="true"></span>
+
+    <div class="scratch" id="scratch" role="button" tabindex="0"
+         aria-label="Scratch to reveal the wedding date">
+      <div class="scratch-face">
+        <p class="date-label">Date</p>
+        <p class="date-value"><time datetime="2026-09-27">27 Sep 2026</time></p>
+      </div>
+      <canvas class="scratch-foil" id="scratchFoil" aria-hidden="true"></canvas>
+    </div>
+  </section>
+
+  <section class="sec sec--white" id="countdown">
+    <div class="sec-inner">
+      <h2 class="sec-heading">Counting Down</h2>
+      <span class="sec-rule" aria-hidden="true"></span>
+
+      <!-- digits tick every second; the full date is stated in The Nikah below,
+           so this is hidden from screen readers rather than announced repeatedly -->
+      <div class="count-grid" id="countGrid" aria-hidden="true">
+        <div class="count-cell"><span class="count-num" id="cdD">--</span><span class="count-lab">Days</span></div>
+        <div class="count-cell"><span class="count-num" id="cdH">--</span><span class="count-lab">Hours</span></div>
+        <div class="count-cell"><span class="count-num" id="cdM">--</span><span class="count-lab">Minutes</span></div>
+        <div class="count-cell"><span class="count-num" id="cdS">--</span><span class="count-lab">Seconds</span></div>
+      </div>
+      <p class="count-done" id="countDone" hidden>Alhamdulillah &mdash; the day has come.</p>
+    </div>
+  </section>
+
+  <section class="sec sec--ivory" id="nikah">
+    <div class="sec-inner">
+      <h2 class="sec-heading">The Nikah</h2>
+      <span class="sec-rule" aria-hidden="true"></span>
+    </div>
+
+    <div class="nikah-art">
+      <img class="nikah-card" src="image/nikah.webp" alt="" />
+      <img class="nikah-butterfly" src="image/butterfly.gif" alt="" />
+
+      <dl class="nikah-panel">
+        <div class="nikah-row">
+          <dt class="nikah-term">Date</dt>
+          <dd class="nikah-detail"><time datetime="2026-09-27">Sunday, 27 Sep 2026</time></dd>
+        </div>
+        <div class="nikah-row">
+          <dt class="nikah-term">Time</dt>
+          <dd class="nikah-detail">Nikah: 11:30 AM</dd>
+        </div>
+        <div class="nikah-row">
+          <dt class="nikah-term">Venue</dt>
+          <dd class="nikah-detail">Abroad Multiplex Auditorium<small>Kumbra, Puttur</small></dd>
+        </div>
+      </dl>
+    </div>
+  </section>
+
+  <section class="sec sec--white" id="location">
+    <div class="sec-inner">
+      <h2 class="sec-heading">Find Your Way</h2>
+      <span class="sec-rule" aria-hidden="true"></span>
+
+      <div class="map-frame">
+        <iframe
+          title="Map to the wedding venue"
+          src="https://www.google.com/maps?q=Abroad%20Multiplex%20Auditorium%2C%20Kumbra%2C%20Puttur&amp;output=embed"
+          loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade"
+          allowfullscreen></iframe>
+      </div>
+
+      <a class="map-link"
+         href="https://www.google.com/maps/search/?api=1&amp;query=Abroad%20Multiplex%20Auditorium%2C%20Kumbra%2C%20Puttur"
+         target="_blank" rel="noopener">Open in Maps</a>
+    </div>
+  </section>
+
+  <section class="sec sec--ivory" id="wishes">
+    <div class="sec-inner">
+      <h2 class="sec-heading">Wishes</h2>
+      <span class="sec-rule" aria-hidden="true"></span>
+
+      <form class="wish-form" id="wishForm" novalidate>
+        <label for="wishName">Your name</label>
+        <input id="wishName" name="name" type="text" placeholder="Your name"
+               maxlength="60" autocomplete="name" required />
+
+        <label for="wishText">Your wish</label>
+        <textarea id="wishText" name="message" placeholder="Leave a wish for the couple"
+                  maxlength="400" required></textarea>
+
+        <button class="wish-send" type="submit">Send Wish</button>
+      </form>
+
+      <p class="wish-status" id="wishStatus" role="status" aria-live="polite"></p>
+
+      <ul class="wish-list" id="wishList"></ul>
+    </div>
+  </section>
+
+  <section class="sec sec--white" id="contact">
+    <div class="sec-inner">
+      <h2 class="sec-heading">Contact</h2>
+      <span class="sec-rule" aria-hidden="true"></span>
+
+      <div class="contact-grid">
+        <dl class="contact-list">
+          <div>
+            <dt class="contact-role">Bride&rsquo;s Father</dt>
+            <!-- TODO: once the numbers arrive, wrap the phone mark in
+                 <a href="tel:+91..."> and the WhatsApp one in
+                 <a href="https://wa.me/91..."> - they are inert until then -->
+            <dd class="contact-name">Mr. Isubu<span class="contact-icons"><svg viewBox="0 0 24 24" role="img" aria-hidden="true"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg><svg viewBox="0 0 24 24" role="img" aria-hidden="true"><path d="M17.47 14.38c-.3-.15-1.75-.86-2.02-.96-.27-.1-.47-.15-.67.15-.2.3-.77.96-.94 1.16-.17.2-.35.22-.65.07-.3-.15-1.25-.46-2.38-1.47-.88-.78-1.47-1.75-1.64-2.05-.17-.3-.02-.46.13-.61.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.07-.15-.67-1.61-.92-2.2-.24-.58-.48-.5-.67-.51h-.57c-.2 0-.52.07-.79.37s-1.04 1.02-1.04 2.48 1.07 2.88 1.22 3.08c.15.2 2.1 3.2 5.08 4.49.71.31 1.26.49 1.69.63.71.23 1.36.2 1.87.12.57-.09 1.75-.72 2-1.41.25-.69.25-1.28.17-1.41-.07-.13-.27-.2-.57-.35z"/><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5.05-1.32A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.18-1.15l-.3-.18-3 .79.8-2.92-.2-.31A8.2 8.2 0 1 1 12 20.2z"/></svg></span></dd>
+          </div>
+          <div>
+            <dt class="contact-role">Groom&rsquo;s Father</dt>
+            <!-- TODO: same here - add tel: and wa.me links when known -->
+            <dd class="contact-name">Mr. Hassainar<span class="contact-icons"><svg viewBox="0 0 24 24" role="img" aria-hidden="true"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg><svg viewBox="0 0 24 24" role="img" aria-hidden="true"><path d="M17.47 14.38c-.3-.15-1.75-.86-2.02-.96-.27-.1-.47-.15-.67.15-.2.3-.77.96-.94 1.16-.17.2-.35.22-.65.07-.3-.15-1.25-.46-2.38-1.47-.88-.78-1.47-1.75-1.64-2.05-.17-.3-.02-.46.13-.61.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.07-.15-.67-1.61-.92-2.2-.24-.58-.48-.5-.67-.51h-.57c-.2 0-.52.07-.79.37s-1.04 1.02-1.04 2.48 1.07 2.88 1.22 3.08c.15.2 2.1 3.2 5.08 4.49.71.31 1.26.49 1.69.63.71.23 1.36.2 1.87.12.57-.09 1.75-.72 2-1.41.25-.69.25-1.28.17-1.41-.07-.13-.27-.2-.57-.35z"/><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5.05-1.32A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.18-1.15l-.3-.18-3 .79.8-2.92-.2-.31A8.2 8.2 0 1 1 12 20.2z"/></svg></span></dd>
+          </div>
+        </dl>
+
+        <img class="contact-art" src="image/call.webp" alt="" />
+      </div>
+    </div>
+  </section>
+
+  <footer class="site-footer">
+    <img class="footer-mono" src="image/mono.webp" alt="" />
+    <p class="footer-names">Thanseefa<span class="amp">&amp;</span>Shakeer</p>
+    <p class="footer-date"><time datetime="2026-09-27">27 September 2026</time></p>
+    <p class="footer-gift">No gifts, please<br />your prayers are enough</p>
+    <p class="footer-thanks">With love and gratitude</p>
+  </footer>
+
+  <!-- Fallback control if autoplay is blocked by the browser -->
+  <button class="autoplay-fallback" id="autoplayFallback" type="button">
+    <span class="play-tri" aria-hidden="true"></span>
+    <span>Play</span>
+  </button>
+
+<script>
+(function(){
+  "use strict";
+
+  var welcome       = document.getElementById('welcome');
+  var welcomeVideo  = document.getElementById('welcome-video');
+  var poster        = document.getElementById('poster');
+  var tapPrompt     = document.getElementById('tapPrompt');
+  var hero          = document.getElementById('hero');
+  var heroVideo     = document.getElementById('hero-video');
+  var fallbackBtn   = document.getElementById('autoplayFallback');
+
+  var started   = false;   // welcome interaction consumed
+  var revealed  = false;   // hero already revealed
+  var promptTimer = null;  // delayed reveal of the tap cue
+
+  // Belt-and-braces for reliable mobile inline playback
+  [welcomeVideo, heroVideo].forEach(function(v){
+    v.muted = true;
+    v.setAttribute('muted','');
+    v.playsInline = true;
+  });
+
+  function showFallback(){ fallbackBtn.classList.add('show'); }
+  function hideFallback(){ fallbackBtn.classList.remove('show'); }
+
+  // ---- Reveal the hero scene once the welcome video finishes ----
+  function revealHero(){
+    if (revealed) return;
+    revealed = true;
+
+    welcome.classList.add('gone');
+    hero.classList.add('reveal');
+    document.body.classList.add('unlocked');
+
+    /* any Play button raised for the welcome video is meaningless once that
+       scene is over, so clear it before deciding about the hero video */
+    hideFallback();
+    fallbackBtn.onclick = null;
+
+    /* the hero video may be hidden; playing it would only surface a stray
+       Play button over the page, so skip it entirely when it is not shown */
+    var shown = heroVideo.offsetWidth > 0 || heroVideo.offsetHeight > 0;
+    if (shown){
+      var p = heroVideo.play();
+      if (p && typeof p.catch === 'function'){
+        p.catch(function(){
+          showFallback();
+          fallbackBtn.onclick = function(){
+            heroVideo.play().then(hideFallback).catch(function(){});
+          };
+        });
+      }
+    }
+
+    setTimeout(function(){
+      if (welcome && welcome.parentNode) welcome.parentNode.removeChild(welcome);
+    }, 1600);
+  }
+
+  // ---- Start the welcome video on first interaction ----
+  function beginStory(){
+    if (started) return;            // prevent replay of the intro interaction
+    started = true;
+
+    clearTimeout(promptTimer);
+    tapPrompt.classList.remove('show');
+    tapPrompt.classList.add('hide');
+    poster.classList.add('fade-out');
+    welcomeVideo.classList.add('playing');
+
+    removeInteractionListeners();
+
+    var p = welcomeVideo.play();
+    if (p && typeof p.catch === 'function'){
+      p.catch(function(){
+        showFallback();
+        fallbackBtn.onclick = function(){
+          welcomeVideo.play().then(hideFallback).catch(function(){});
+        };
+      });
+    }
+
+    setTimeout(function(){
+      if (poster && poster.parentNode) poster.parentNode.removeChild(poster);
+    }, 1400);
+  }
+
+  function onKey(e){
+    if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar'){
+      e.preventDefault();
+      beginStory();
+    }
+  }
+
+  function removeInteractionListeners(){
+    welcome.removeEventListener('touchstart', beginStory);
+    welcome.removeEventListener('click', beginStory);
+    welcome.removeEventListener('keydown', onKey);
+  }
+
+  // Surface the cue after 2s, only if the guest hasn't already interacted.
+  promptTimer = setTimeout(function(){
+    if (!started) tapPrompt.classList.add('show');
+  }, 2000);
+
+  welcome.addEventListener('touchstart', beginStory, {passive:true});
+  welcome.addEventListener('click', beginStory);
+  welcome.addEventListener('keydown', onKey);
+
+  welcomeVideo.addEventListener('ended', revealHero);
+
+  // Safety net: if the video errors after starting, still progress.
+  welcomeVideo.addEventListener('error', function(){
+    if (started && !revealed) revealHero();
+  });
+
+})();
+
+/* ---------- countdown ---------- */
+(function(){
+  "use strict";
+
+  /* +05:30 is IST, so the countdown reads the same for a guest in Dubai as
+     one in Mangalore. Keep this in step with the time shown in The Nikah. */
+  var WEDDING_AT = '2026-09-27T11:30:00+05:30';
+
+  var grid = document.getElementById('countGrid');
+  var done = document.getElementById('countDone');
+  var D = document.getElementById('cdD'), H = document.getElementById('cdH'),
+      M = document.getElementById('cdM'), S = document.getElementById('cdS');
+  if (!grid || !D) return;
+
+  var target = new Date(WEDDING_AT).getTime();
+  if (isNaN(target)) return;                 // bad date: leave the dashes alone
+
+  function pad(n){ return n < 10 ? '0' + n : String(n); }
+
+  function tick(){
+    var diff = target - Date.now();
+    if (diff <= 0){
+      grid.hidden = true;
+      if (done) done.hidden = false;
+      clearInterval(timer);
+      return;
+    }
+    var sec = Math.floor(diff / 1000);
+    D.textContent = String(Math.floor(sec / 86400));
+    H.textContent = pad(Math.floor(sec / 3600) % 24);
+    M.textContent = pad(Math.floor(sec / 60) % 60);
+    S.textContent = pad(sec % 60);
+  }
+
+  tick();
+  var timer = setInterval(tick, 1000);
+})();
+
+/* ---------- wishes wall ----------
+   WISHES_ENDPOINT: set this to a URL that accepts a JSON POST ({name, message})
+   and wishes become shared between guests. While it is empty a wish is kept in
+   this browser only, and the guest is told so rather than being led to believe
+   it reached the couple. */
+(function(){
+  "use strict";
+
+  var WISHES_ENDPOINT = "";          // <-- TODO: put your form/collector URL here
+
+  var form   = document.getElementById('wishForm');
+  var list   = document.getElementById('wishList');
+  var status = document.getElementById('wishStatus');
+  if (!form || !list || !status) return;
+
+  var KEY = 'tw-wishes';
+
+  function load(){
+    try { return JSON.parse(localStorage.getItem(KEY)) || []; }
+    catch (e) { return []; }
+  }
+  function save(items){
+    try { localStorage.setItem(KEY, JSON.stringify(items)); } catch (e) {}
+  }
+
+  function render(items){
+    list.textContent = '';
+    items.forEach(function(w){
+      var li = document.createElement('li');
+      li.className = 'wish-card';
+      var p = document.createElement('p');
+      p.textContent = w.message;          // textContent, never innerHTML
+      var cite = document.createElement('cite');
+      cite.textContent = w.name;
+      li.appendChild(p);
+      li.appendChild(cite);
+      list.appendChild(li);
+    });
+  }
+
+  form.addEventListener('submit', function(e){
+    e.preventDefault();
+    var name = form.name.value.trim();
+    var message = form.message.value.trim();
+    if (!name || !message){
+      status.textContent = 'Please add your name and a wish.';
+      return;
+    }
+
+    var wish = {name:name, message:message, at:Date.now()};
+
+    if (WISHES_ENDPOINT){
+      status.textContent = 'Sending\u2026';
+      fetch(WISHES_ENDPOINT, {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify(wish)
+      }).then(function(r){
+        if (!r.ok) throw new Error(r.status);
+        status.textContent = 'Thank you \u2014 your wish has been sent.';
+        form.reset();
+      }).catch(function(){
+        status.textContent = 'That did not send. Please try again.';
+      });
+      return;
+    }
+
+    var items = load();
+    items.unshift(wish);
+    save(items);
+    render(items);
+    form.reset();
+    status.textContent = 'Saved on this device only \u2014 wishes are not yet being collected.';
+  });
+
+  render(load());
+})();
+
+/* ---------- scratch-to-reveal the date ---------- */
+(function(){
+  "use strict";
+
+  var card = document.getElementById('scratch');
+  var cvs  = document.getElementById('scratchFoil');
+  if (!card || !cvs || !cvs.getContext) return;   // no canvas: the date is already legible
+
+  var ctx = cvs.getContext('2d', {willReadFrequently:true});
+  var painted = false, started = false, revealed = false;
+  var last = null, checkTick = 0;
+
+  function paintFoil(){
+    var r = card.getBoundingClientRect();
+    if (!r.width || !r.height) return;
+    var dpr = Math.min(window.devicePixelRatio || 1, 2);
+    cvs.width  = Math.round(r.width  * dpr);
+    cvs.height = Math.round(r.height * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.globalCompositeOperation = 'source-over';
+
+    var g = ctx.createLinearGradient(0, 0, r.width, r.height);
+    g.addColorStop(0,   '#cbb389');
+    g.addColorStop(.42, '#e6d4ae');
+    g.addColorStop(.58, '#f0e3c6');
+    g.addColorStop(1,   '#c9a35b');
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, r.width, r.height);
+
+    ctx.fillStyle = 'rgba(255,255,255,.22)';
+    for (var i = 0; i < 180; i++){
+      var x = Math.random() * r.width, y = Math.random() * r.height;
+      ctx.beginPath();
+      ctx.arc(x, y, Math.random() * 1.6 + .3, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    painted = true;
+  }
+
+  function pointAt(e){
+    var r = cvs.getBoundingClientRect();
+    return {x: e.clientX - r.left, y: e.clientY - r.top};
+  }
+
+  function scratch(from, to){
+    var w = cvs.getBoundingClientRect().width;
+    ctx.globalCompositeOperation = 'destination-out';
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.lineWidth = Math.max(24, w * 0.11);
+    ctx.beginPath();
+    ctx.moveTo(from.x, from.y);
+    ctx.lineTo(to.x, to.y);
+    ctx.stroke();
+  }
+
+  /* sample the alpha channel on a coarse grid - cheap enough to run occasionally */
+  function clearedFraction(){
+    var d = ctx.getImageData(0, 0, cvs.width, cvs.height).data;
+    var clear = 0, total = 0;
+    for (var i = 3; i < d.length; i += 4 * 16){
+      total++;
+      if (d[i] < 40) clear++;
+    }
+    return total ? clear / total : 0;
+  }
+
+  function reveal(){
+    if (revealed) return;
+    revealed = true;
+    card.classList.add('revealed');
+    card.removeAttribute('tabindex');
+    card.removeAttribute('role');
+  }
+
+  function down(e){
+    if (revealed) return;
+    if (!painted) paintFoil();
+    started = true;
+    last = pointAt(e);
+    scratch(last, last);
+    if (cvs.setPointerCapture && e.pointerId !== undefined){
+      try { cvs.setPointerCapture(e.pointerId); } catch (err) {}
+    }
+  }
+
+  function move(e){
+    if (revealed || !started || !last) return;
+    e.preventDefault();
+    var p = pointAt(e);
+    scratch(last, p);
+    last = p;
+    if (++checkTick % 10 === 0 && clearedFraction() > 0.45) reveal();
+  }
+
+  function up(){
+    if (revealed || !started) return;
+    started = false;
+    last = null;
+    if (clearedFraction() > 0.4) reveal();
+  }
+
+  cvs.addEventListener('pointerdown', down);
+  cvs.addEventListener('pointermove', move, {passive:false});
+  window.addEventListener('pointerup', up);
+  window.addEventListener('pointercancel', up);
+
+  /* keyboard route, and a fallback for anyone who cannot drag */
+  card.addEventListener('keydown', function(e){
+    if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar'){
+      e.preventDefault();
+      reveal();
+    }
+  });
+
+  /* only repaint on resize while the foil is still untouched */
+  var rt;
+  window.addEventListener('resize', function(){
+    if (revealed) return;
+    clearTimeout(rt);
+    rt = setTimeout(function(){ if (!started && checkTick === 0) paintFoil(); }, 200);
+  });
+
+  /* paint once the card has a size (it sits below the fold at load) */
+  if (window.requestAnimationFrame) requestAnimationFrame(paintFoil);
+  else paintFoil();
+  window.addEventListener('load', function(){ if (!painted) paintFoil(); });
+})();
+</script>
+</body>
+</html>
