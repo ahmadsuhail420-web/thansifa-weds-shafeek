@@ -440,13 +440,30 @@
     position:relative;
     width:min(84%,400px);
     aspect-ratio:5 / 3;
-    /* overflow:hidden was already here, so it clips the foil canvas to the
-       rounded corners too - no radius needed on the canvas itself */
     overflow:hidden;
-    border-radius:clamp(14px,3.8vw,24px);
+    /* the cartouche outline. clipPathUnits are objectBoundingBox, so the one
+       path scales to whatever size the card takes, and it clips the foil
+       canvas along with the face - no radius or clipping on the canvas. A
+       border cannot be used with clip-path (it would be cut away), so the
+       gold edge is stroked by .scratch-edge instead. */
+    clip-path:url(#cartouche);
     background:#7b2233 url("image/1.webp") center / cover no-repeat;
-    /* a burgundy hairline vanishes on a burgundy ground; gold reads as an edge */
-    border:1px solid rgba(201,163,91,.34);
+  }
+  /* the same path again, stroked, sitting above the foil. non-scaling-stroke
+     keeps the hairline even width despite preserveAspectRatio="none". */
+  .scratch-edge{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    z-index:2;
+    pointer-events:none;
+  }
+  .scratch-edge path{
+    fill:none;
+    stroke:rgba(201,163,91,.55);
+    stroke-width:2.5;
+    vector-effect:non-scaling-stroke;
   }
   /* the date is real text underneath, so it is readable even without scratching */
   .scratch-face{
@@ -460,7 +477,9 @@
     /* 1.webp's visible band averages rgb(73,21,20), so the old burgundy text
        sat at 1.51:1 against it. Ivory-light is 14.4:1. */
     color:var(--ivory-light);
-    padding:8%;
+    /* wider than a rectangle would need: the cartouche cuts the corners away
+       and dips at the top and bottom centre */
+    padding:9% 15%;
   }
   .date-label{
     font-family:var(--sans);
@@ -1045,7 +1064,20 @@
         <p class="date-hijri">(16 Rabi'al-Akhir 1448)</p>
       </div>
       <canvas class="scratch-foil" id="scratchFoil" aria-hidden="true"></canvas>
+      <svg class="scratch-edge" viewBox="0 0 1 1" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+        <g transform="translate(.008 .008) scale(.984)">
+        <path d="M .5 .045 C .44 .005 .35 0 .285 .012 C .2 .03 .115 .075 .075 .145 C .046 .208 .086 .3 .072 .372 C .058 .432 .024 .456 .016 .5 C .024 .544 .058 .568 .072 .628 C .1 .7 .045 .795 .075 .855 C .115 .925 .2 .97 .285 .988 C .35 1 .44 .995 .5 .955 C .56 .995 .65 1 .715 .988 C .8 .97 .885 .925 .925 .855 C .954 .792 .914 .7 .928 .628 C .942 .568 .976 .544 .984 .5 C .976 .456 .942 .432 .928 .372 C .9 .3 .955 .205 .925 .145 C .885 .075 .8 .03 .715 .012 C .65 0 .56 .005 .5 .045 Z"/>
+        </g>
+      </svg>
     </div>
+
+    <svg width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute">
+      <defs>
+        <clipPath id="cartouche" clipPathUnits="objectBoundingBox">
+          <path d="M .5 .045 C .44 .005 .35 0 .285 .012 C .2 .03 .115 .075 .075 .145 C .046 .208 .086 .3 .072 .372 C .058 .432 .024 .456 .016 .5 C .024 .544 .058 .568 .072 .628 C .1 .7 .045 .795 .075 .855 C .115 .925 .2 .97 .285 .988 C .35 1 .44 .995 .5 .955 C .56 .995 .65 1 .715 .988 C .8 .97 .885 .925 .925 .855 C .954 .792 .914 .7 .928 .628 C .942 .568 .976 .544 .984 .5 C .976 .456 .942 .432 .928 .372 C .9 .3 .955 .205 .925 .145 C .885 .075 .8 .03 .715 .012 C .65 0 .56 .005 .5 .045 Z"/>
+        </clipPath>
+      </defs>
+    </svg>
   </section>
 
   <section class="sec sec--white" id="countdown">
