@@ -129,8 +129,17 @@
     object-fit:cover;
   }
 
-  #welcome-video{opacity:0;transition:opacity 1.2s var(--ease);}
-  #welcome-video.playing{opacity:1;}
+  /* Opaque from the start, so only the poster above it fades. Cross-fading
+     both at once left them part-transparent at the same moment and #welcome's
+     ink ground showed through the pair: sampled mid-frame, the pixel went
+     181 -> 154 -> 162 -> 184 -> 211 -> 241 across the transition, i.e. 27
+     levels darker than the poster it was leaving before it ever brightened
+     toward the clip. That trough is the black wash on entry, and it lands
+     early because --ease is fast-out. Fading the poster alone gives
+     181 -> 201 -> 212 -> 223 -> 233 -> 241, no dip. The poster covers the
+     video completely - z-index 2, inset 0, cover - so there was never
+     anything to hide before the tap. */
+  #welcome-video{opacity:1;}
 
   .poster{
     z-index:2;
