@@ -954,6 +954,32 @@
     font-size:clamp(14px,3.8vw,18px);
     opacity:.85;
   }
+  /* Quieter than everything above it: the couple's names should still be the
+     last thing read. Sits below the gratitude line with a wider gap so it
+     reads as a separate mark rather than part of the message. */
+  .footer-credit{
+    margin-top:clamp(18px,4.6vw,28px);
+    font-family:var(--sans);
+    font-weight:400;
+    letter-spacing:.24em;
+    text-transform:uppercase;
+    /* floor matches .footer-gift: below ~8px this turns into a smudge on a
+       phone, and it has to stay legible because it is a link */
+    font-size:clamp(8px,2vw,10px);
+    opacity:.6;
+  }
+  .footer-credit a{
+    display:inline-block;
+    color:inherit;
+    text-decoration:none;
+    border-bottom:1px solid rgba(216,189,130,.55);
+    /* inline-block + padding so the tap target is taller than the glyphs */
+    padding:.5em .15em .3em;
+    transition:border-color .3s var(--ease);
+  }
+  .footer-credit a:hover,.footer-credit a:focus-visible{
+    border-bottom-color:var(--gold-soft);
+  }
 
   /* Scroll cue (functional cue only) */
   .scroll-cue{
@@ -1281,6 +1307,9 @@
     <p class="footer-date"><time datetime="2026-09-27">27 September 2026</time></p>
     <p class="footer-gift">No gifts, please<br />your prayers are enough</p>
     <p class="footer-thanks">With love and gratitude</p>
+    <p class="footer-credit">Invitation by
+      <a href="https://syncandstyle.com" target="_blank" rel="noopener noreferrer">Sync &amp; Style</a>
+    </p>
   </footer>
 
   <!-- Fallback control if autoplay is blocked by the browser -->
